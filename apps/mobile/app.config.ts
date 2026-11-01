@@ -26,14 +26,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: 'Studium',
     slug: 'studium',
-    version: '1.0.0',
+    version: '1.1.0',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: 'studium',
     userInterfaceStyle: 'automatic',
     android: {
       package: 'app.studium.companion',
-      versionCode: 1,
+      versionCode: 2,
       adaptiveIcon: {
         backgroundColor: '#F5F7FB',
         foregroundImage: './assets/images/android-icon-foreground.png',

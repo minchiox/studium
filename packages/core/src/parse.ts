@@ -48,6 +48,18 @@ export function decodeHtmlEntities(s: string): string {
   });
 }
 
+/**
+ * Display text from platform fields: decodes HTML entities ("responsabilit&#224;" → "responsabilità"),
+ * restores apostrophes the platform stores as a backslash ("l\\ analisi" → "l'analisi"), trims spaces.
+ */
+export function cleanText(s: string | null | undefined): string {
+  return decodeHtmlEntities(s ?? '')
+    .replace(/(\p{L})\\\s?(?=\p{L})/gu, "$1'")
+    .replace(/\\(['"])/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /** Light HTML → text for short rich-text fields (lesson objectives). */
 export function htmlToText(html: string): string {
   return decodeHtmlEntities(
@@ -103,17 +115,19 @@ export function parseLesson(
   return {
     number: ref.display_order,
     lpId: ref.lp_id,
-    title: ref.title.trim(),
+    title: cleanText(ref.title),
     teacher: teacher || null,
     progress: nullableNum(ref.percentage),
     objectives: intro?.description ? htmlToText(intro.description) : null,
     dispensaUrl: meta?.mer_BookUrl || meta?.bookUrl || null,
-    selfTest: test ? { title: test.title ?? 'Test', progress: nullableNum(test.percentage) } : null,
+    selfTest: test
+      ? { title: cleanText(test.title) || 'Test', progress: nullableNum(test.percentage) }
+      : null,
     paragraphs: items
       .filter((x) => x.contentType === 'video')
       .map((v, i) => ({
         number: nullableNum(v.paragNumber) ?? i + 1,
-        title: (v.title ?? '').trim(),
+        title: cleanText(v.title),
         durationS: nullableNum(v.duration_s) ?? 0,
         progress: nullableNum(v.percentage),
         videoUrl: v.videoUrl ?? null,

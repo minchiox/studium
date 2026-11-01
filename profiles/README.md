@@ -2,6 +2,8 @@
 
 Un profilo descrive **una** installazione della web app studenti: host, nomi dei cookie, URL del player. Il codice non contiene nessuno di questi valori, così lo stesso codice funziona per atenei diversi e il repository resta neutro.
 
+**Nell'app non serve scriverlo a mano**: al primo avvio lo studente inserisce l'indirizzo della sua piattaforma e Studium costruisce il profilo durante l'accesso. I file qui servono per le build personali con un profilo integrato e per il server MCP.
+
 | File | Scopo | In git |
 |---|---|---|
 | `example.json` | Modello con valori finti | sì |

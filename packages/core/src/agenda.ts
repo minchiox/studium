@@ -1,5 +1,5 @@
 import type { z } from 'zod';
-import { decodeHtmlEntities, htmlToText } from './parse.ts';
+import { cleanText, htmlToText } from './parse.ts';
 import type {
   ApiActiveExam,
   ApiLiveClass,
@@ -31,7 +31,7 @@ export function mapActiveExam(e: z.infer<typeof ApiActiveExam>): ExamSession {
   return {
     id: String(e.exam_id),
     courseCode: e.course_code,
-    title: e.title_exam.trim(),
+    title: cleanText(e.title_exam),
     module: e.title_module?.trim() || null,
     date: ymd(e.date_exam),
     start: hhmm(e.exam_hour),
@@ -45,7 +45,7 @@ export function mapNotice(raw: z.infer<typeof ApiNotice>): Notice {
   const html = raw.body ?? '';
   return {
     id: String(raw.id),
-    title: decodeHtmlEntities(raw.title).trim(),
+    title: cleanText(raw.title),
     html,
     text: htmlToText(html),
     category: raw.notice_category?.name?.trim() || null,
@@ -65,12 +65,12 @@ export function mapNotice(raw: z.infer<typeof ApiNotice>): Notice {
 export function mapLiveClass(c: z.infer<typeof ApiLiveClass>): LiveClass {
   return {
     id: String(c.id),
-    title: c.name_class?.trim() || 'Lezione live',
+    title: cleanText(c.name_class) || 'Lezione live',
     description: c.description_class?.trim() || null,
     start: c.start_class,
     end: c.end_class ?? null,
     state: c.state ?? null,
-    courses: (c.courses ?? []).map((x) => ({ code: x.code, title: x.title?.trim() || x.code })),
+    courses: (c.courses ?? []).map((x) => ({ code: x.code, title: cleanText(x.title) || x.code })),
   };
 }
 

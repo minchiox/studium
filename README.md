@@ -47,12 +47,17 @@ npm run mobile         # Metro: apri l'app con Expo Go (premi "a" per l'emulator
 
 Su un telefono vero con il mock: `adb reverse tcp:4010 tcp:4010`.
 
-## Usarlo con la tua università
+## Installa l'app
 
-Tutto ciò che identifica una piattaforma (host, nomi dei cookie, URL del player) sta in un **profilo** JSON fuori dal codice. Copia [`profiles/example.json`](profiles/example.json) in `profiles/default.json`, che git ignora, e compila i valori della tua piattaforma: sono visibili negli strumenti per sviluppatori del browser, mentre sei collegato. Dettagli in [`profiles/README.md`](profiles/README.md).
+1. Scarica `Studium.apk` dall'ultima [release](../../releases/latest) direttamente dal telefono e aprilo. Android chiede di consentire l'installazione da questa fonte.
+2. Al primo avvio tocca **Collega la tua università** e incolla l'indirizzo che apri nel browser per entrare nell'area studenti, per esempio `https://lms.<ateneo>.<dominio>/`.
+3. Accedi come sempre, sulla pagina ufficiale. Studium **riconosce da solo la piattaforma**: indirizzo dell'API, cookie della sessione, host di video e sottotitoli.
 
-- **App**: `npm run apk -w @studium/mobile` produce `apps/mobile/android/app/build/outputs/apk/release/app-release.apk`. Lo installi con `adb install` o copiandolo sul telefono. Vedi [`apps/mobile/README.md`](apps/mobile/README.md).
-- **Server MCP**: vedi [`packages/mcp/README.md`](packages/mcp/README.md).
+La configurazione si può esportare e importare (Impostazioni → Esporta configurazione), ad esempio per passarla a un compagno della stessa università. Funziona con le piattaforme Chamilo dotate della web app studenti e della relativa API REST. Se la piattaforma non è compatibile, l'app lo dice chiaramente invece di mostrare dati sbagliati.
+
+### Per sviluppatori: profilo integrato
+
+Una build personale può includere già il profilo, così si salta la configurazione. Copia [`profiles/example.json`](profiles/example.json) in `profiles/default.json`, che git ignora; dettagli in [`profiles/README.md`](profiles/README.md). Poi esegui `npm run apk -w @studium/mobile` ([`apps/mobile/README.md`](apps/mobile/README.md)). La build pubblica si ottiene con `STUDIUM_PROFILE=none`. Per il server MCP vedi [`packages/mcp/README.md`](packages/mcp/README.md).
 
 ## Sicurezza e privacy
 
@@ -90,7 +95,7 @@ Le scelte principali sono documentate negli ADR in [`docs/adr/`](docs/adr):
 | Unit | parsing, guardia, client (refresh, retry, errori), carriera, agenda, ricerca | `packages/core/test` |
 | Contract | client reale contro il mock via HTTP, incluso il rinnovo della sessione | `apps/mock-lms/test` |
 | MCP end-to-end | client e server MCP contro il mock | `packages/mcp/test` |
-| Android E2E | 17 passi sull'emulatore: login, studio, download, ricerca, carriera, avvisi, agenda, rinnovo, logout, verifica read-only | `apps/mobile/e2e` |
+| Android E2E | Mock: configurazione dell'università, login, studio, download, ricerca, carriera, avvisi, agenda, rinnovo, logout, verifica read-only. Piattaforma reale: giro completo con `--site` e `--cred` | `apps/mobile/e2e` |
 
 ```bash
 npm run check                              # lint + typecheck + test

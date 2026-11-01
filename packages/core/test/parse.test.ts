@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cleanText,
   decodeBase64Url,
   decodeHtmlEntities,
   formatDuration,
@@ -167,5 +168,23 @@ describe('tokens and cookies', () => {
     expect(readCookie('a=1; st_token=abc%3D; b=2', 'st_token')).toBe('abc=');
     expect(readCookie('xst_token=1', 'st_token')).toBeNull();
     expect(readCookie('', 'st_token')).toBeNull();
+  });
+});
+
+describe('cleanText (artifacts seen on a real platform)', () => {
+  it('decodes entities and restores apostrophes stored as backslashes', () => {
+    expect(cleanText('La responsabilit&#224; degli enti')).toBe('La responsabilità degli enti');
+    expect(cleanText('Gli aggettivi e l\\ ausiliare to have got')).toBe(
+      "Gli aggettivi e l'ausiliare to have got",
+    );
+    expect(cleanText('L\\ alterazione delle comunicazioni')).toBe("L'alterazione delle comunicazioni");
+    expect(cleanText("Supporto all\\'Integrit&#224;")).toBe("Supporto all'Integrità");
+    expect(cleanText(' Falsit&#224; in documento  informatico ')).toBe('Falsità in documento informatico');
+    expect(cleanText('dati &#171;privati&#187;')).toBe('dati «privati»');
+  });
+  it('leaves normal text and genuine backslashes alone', () => {
+    expect(cleanText("L'analisi")).toBe("L'analisi");
+    expect(cleanText('C:\\ 100')).toBe('C:\\ 100');
+    expect(cleanText(null)).toBe('');
   });
 });

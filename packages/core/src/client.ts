@@ -18,7 +18,7 @@ import {
 } from './errors.ts';
 import { classifyRequest } from './guard.ts';
 import { type Logger, silentLogger } from './logger.ts';
-import { parseLesson } from './parse.ts';
+import { cleanText, parseLesson } from './parse.ts';
 import { mapPool, sleep } from './pool.ts';
 import { type PlatformProfile, watchUrl } from './profile.ts';
 import {
@@ -210,7 +210,7 @@ export class LmsClient implements StudyClient {
       const lp = last?.lp_id;
       byCode.set(p.code, {
         code: p.code,
-        title: prev?.title ?? p.title.trim(),
+        title: prev?.title ?? cleanText(p.title),
         cfu: prev?.cfu ?? p.cfu ?? null,
         year: prev?.year ?? null,
         ssd: prev?.ssd ?? null,

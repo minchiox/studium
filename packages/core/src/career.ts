@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import { cleanText } from './parse.ts';
 import type { ApiCareer, ApiCareerEntry, ApiStudent, Career, CareerExam, Student } from './types.ts';
 
 const n = (v: number | null | undefined): number | null =>
@@ -17,7 +18,7 @@ export function mapCareerExam(e: z.infer<typeof ApiCareerEntry>): CareerExam {
   const vote = n(ev?.vote);
   return {
     code: e.course_code || e.exam_course_code || '',
-    title: e.title.trim(),
+    title: cleanText(e.title),
     year: yearOf(e.year),
     ssd: e.ssd?.trim() || null,
     type: e.type_name?.trim() || null,

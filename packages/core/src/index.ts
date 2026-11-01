@@ -4,6 +4,7 @@ export * from './career.ts';
 export * from './client.ts';
 export * from './discovery.ts';
 export * from './errors.ts';
+export * from './exams.ts';
 export * from './guard.ts';
 export * from './logger.ts';
 export * from './parse.ts';

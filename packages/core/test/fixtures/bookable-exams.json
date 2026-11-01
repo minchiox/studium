@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Diritto dell&#39;informatica",
+    "code": "ABC103",
+    "cfu": "9",
+    "exams": [
+      [{ "exam_date": "2026-11-19T23:00:00.000000Z", "exam_hour": "09:30:00", "exam_hour_finish": "21:00:00", "exam_place": "SC", "location": "Sede centrale", "location_id": 1, "start_date": "2026-10-31T23:00:00.000000Z", "end_date": "2026-11-17T23:00:00.000000Z", "type_of_exam": "Scritto online" }],
+      [{ "exam_date": "2026-12-09T23:00:00.000000Z", "exam_hour": "09:30:00", "exam_hour_finish": "21:00:00", "exam_place": "NO", "location": { "id_location": 2, "place": "NO", "place_ext": "Sede nord", "city": "Sede nord (A.A. 2026/2027)" }, "location_id": 2, "start_date": "2026-11-20T23:00:00.000000Z", "end_date": "2026-12-07T23:00:00.000000Z", "type_of_exam": "Scritto online", "exam_online_flag": 1 }]
+    ]
+  },
+  {
+    "title": "Analisi dei dati",
+    "code": "ABC101",
+    "cfu": 9,
+    "exams": [
+      [{ "exam_date": "2026-11-06T23:00:00.000000Z", "exam_hour": "10:00:00", "exam_hour_finish": "12:00:00", "exam_place": "SC", "location": "Sede centrale", "location_id": 1, "start_date": "2026-10-17T22:00:00.000000Z", "end_date": "2026-11-04T23:00:00.000000Z", "type_of_exam": "Prova intermedia" }],
+      [{ "exam_date": "2026-11-06T23:00:00.000000Z", "exam_hour": "10:00:00", "exam_hour_finish": "12:00:00", "exam_place": "SC", "location": "Sede centrale", "location_id": 1, "start_date": "2026-10-17T22:00:00.000000Z", "end_date": "2026-11-04T23:00:00.000000Z", "type_of_exam": "Prova intermedia" }],
+      { "exam_date": "2026-10-01", "exam_hour": "10:00:00", "location": "Sede centrale", "start_date": "2026-09-10", "end_date": "2026-09-28", "type_of_exam": "Scritto" }
+    ]
+  },
+  { "title": "Lingua inglese", "code": "ABC102", "cfu": 6, "exams": [] }
+]

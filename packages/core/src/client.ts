@@ -16,25 +16,30 @@ import {
   PlatformChangedError,
   SessionExpiredError,
 } from './errors.ts';
+import { mapBookableCourses } from './exams.ts';
 import { classifyRequest } from './guard.ts';
 import { type Logger, silentLogger } from './logger.ts';
 import { cleanText, parseLesson } from './parse.ts';
 import { mapPool, sleep } from './pool.ts';
-import { type PlatformProfile, watchUrl } from './profile.ts';
+import { type OfficialPage, officialPageUrl, type PlatformProfile, watchUrl } from './profile.ts';
 import {
   ApiActiveExam,
+  ApiBookableCourse,
   ApiCareer,
   ApiCourseProgress,
+  ApiExamsToConfirm,
   ApiLessonItem,
   ApiLessonRef,
   ApiLiveClass,
   ApiNotice,
   ApiReservation,
   ApiStudent,
+  type BookableCourse,
   type Career,
   type Course,
   type ExamBooking,
   type ExamSession,
+  type ExamsOverview,
   type Lesson,
   type LiveClass,
   type Notice,
@@ -104,6 +109,8 @@ export const API = {
   unreadNotices: '/notice/unread',
   noticeAttachment: (file: string) => `/notice/attachment/?file=${encodeURIComponent(file)}`,
   liveClasses: '/student/class/sessions?status=scheduled',
+  bookableExams: '/student/get-bookable-exams',
+  examsToConfirm: '/student/exams/to-confirm',
 } as const;
 
 /** Course codes are uppercase alphanumerics; validated before building URLs. */
@@ -295,6 +302,39 @@ export class LmsClient implements StudyClient {
       soft(this.getLiveClasses(), 'live classes'),
     ]);
     return buildAgenda({ bookings, exams, live, ...(titles ? { titles } : {}) });
+  }
+
+  /** Bookable sessions per course, marked when already booked. */
+  async getBookableExams(bookings?: readonly ExamBooking[]): Promise<BookableCourse[]> {
+    const raw = await this.apiGet(API.bookableExams, z.array(ApiBookableCourse), { envelope: false });
+    return mapBookableCourses(raw, bookings ?? (await this.getBookings()));
+  }
+
+  /** How many results wait to be accepted or rejected (on the official page). */
+  async getResultsToConfirm(): Promise<number> {
+    const r = await this.apiGet(API.examsToConfirm, ApiExamsToConfirm);
+    return r.toConfirmExams?.length ?? 0;
+  }
+
+  /** Bookings, bookable sessions and results to confirm. Bookable sessions and results are optional. */
+  async getExamsOverview(): Promise<ExamsOverview> {
+    const bookings = await this.getBookings();
+    const soft = <T>(p: Promise<T>, fallback: T, what: string) =>
+      p.catch((err) => {
+        if (err instanceof SessionExpiredError) throw err;
+        this.log.warn(`${what} unavailable`, err);
+        return fallback;
+      });
+    const [courses, toConfirm] = await Promise.all([
+      soft(this.getBookableExams(bookings), [] as BookableCourse[], 'bookable exams'),
+      soft(this.getResultsToConfirm(), 0, 'results to confirm'),
+    ]);
+    return { bookings, courses, toConfirm };
+  }
+
+  /** A page of the official web app (booking, results), opened in the in-app browser. */
+  officialPage(page: OfficialPage): string {
+    return officialPageUrl(this.profile, page);
   }
 
   /** URL and headers to download a notice attachment (needs the session token). */

@@ -296,10 +296,7 @@ export const ApiBookableSlot = z.looseObject({
   exam_hour_finish: optStr,
   exam_place: optStr,
   location: z
-    .union([
-      z.string(),
-      z.looseObject({ place_ext: optStr, city: optStr, name_location: optStr }),
-    ])
+    .union([z.string(), z.looseObject({ place_ext: optStr, city: optStr, name_location: optStr })])
     .nullish(),
   location_id: optNum,
   start_date: optStr,
@@ -345,6 +342,8 @@ export interface BookableCourse {
   title: string;
   cfu: number | null;
   offers: ExamOffer[];
+  /** Days (YYYY-MM-DD) the student holds a booking for this course, from any source. */
+  bookedOn: string[];
 }
 
 export interface ExamsOverview {

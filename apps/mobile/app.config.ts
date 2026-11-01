@@ -38,7 +38,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: 'app.studium.companion',
       versionCode: 1,
       adaptiveIcon: {
-        backgroundColor: '#1F3A8A',
+        backgroundColor: '#F5F7FB',
         foregroundImage: './assets/images/android-icon-foreground.png',
         backgroundImage: './assets/images/android-icon-background.png',
         monochromeImage: './assets/images/android-icon-monochrome.png',

@@ -1,0 +1,4 @@
+{ "data": [
+  { "exam_id": 1, "course_code": "ABC103", "title_exam": "Diritto dell'informatica", "title_module": "Appello standard", "date_exam": "2026-11-20 00:00:00", "exam_hour": "09:30:00", "exam_hour_finish": "21:00:00", "cfu": 9, "exam_type": "Prova intermedia" },
+  { "exam_id": 2, "course_code": "ABC201", "title_exam": "Sicurezza delle reti", "title_module": null, "date_exam": "2026-12-03 00:00:00", "exam_hour": "10:00:00", "exam_hour_finish": null, "cfu": 9, "exam_type": null }
+], "code": 200 }

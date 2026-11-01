@@ -1,0 +1,14 @@
+{
+  "name": "@studium/mock-lms",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mock of a Chamilo-based student web app and API with fictional data, for end-to-end tests and demos.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@studium/core": "*"
+  }
+}

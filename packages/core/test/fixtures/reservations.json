@@ -1,0 +1,1 @@
+[ { "id_reservation": 77, "course_code": "ABC103", "exam_date": "2026-11-20", "exam_hour": "09:30:00", "exam_hour_finish": "21:00:00", "location": "Sede centrale", "type_of_exam": "Scritto online", "exam_online_flag": 1 } ]

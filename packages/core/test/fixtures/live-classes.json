@@ -1,0 +1,1 @@
+{ "data": { "data": [ { "id": 3, "name_class": "Ripasso guidato", "description_class": "Q&A", "start_class": "2026-11-10T14:00:00.000Z", "end_class": "2026-11-10T15:00:00.000Z", "state": "scheduled", "courses": [ { "code": "ABC101", "title": "Analisi dei dati" } ] } ], "total_records": 1 }, "code": 200 }

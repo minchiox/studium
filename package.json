@@ -1,0 +1,29 @@
+{
+  "name": "studium",
+  "private": true,
+  "description": "Studium — unofficial, read-only study companion for universities running a Chamilo-based LMS: Android app, MCP server and shared core.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "npm run build -w @studium/core && npm run build -w @studium/mcp",
+    "typecheck": "npm run build -w @studium/core && npm run typecheck --workspaces --if-present",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "npm run build -w @studium/core && vitest run",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "mock": "npm run start -w @studium/mock-lms",
+    "mobile": "npm run start -w @studium/mobile"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.4",
+    "@types/node": "^22.20.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

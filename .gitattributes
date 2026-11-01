@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.mp4 binary
+*.ttf binary
+# Test fixtures keep their original line endings (the VTT parser is tested with CRLF)
+packages/core/test/fixtures/** -text

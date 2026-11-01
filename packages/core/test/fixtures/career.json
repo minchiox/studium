@@ -1,0 +1,21 @@
+{ "data": {
+  "profile": { "acquired_cfu": 15, "required_cfu": 120, "remaining_cfu": 105, "num_exam_remaining": 13, "current_year": 1, "vote_weighted": "27,6" },
+  "head": { "aa": "2026/2027" },
+  "career": [
+    [
+      { "course_code": "ABC101", "exam_course_code": "ABC101X", "required_cfu": 9, "acquired_cfu": 9, "year": "1", "title": "Analisi dei dati", "ssd": "SECS-S/01", "type_name": "ESAME", "optional_exam": false,
+        "events": [ { "status": "sup", "status_name": "SUPERATO", "date_conv": "2026-07-10", "vote": 28, "media": true, "acquired_cfu": 9 } ] },
+      { "course_code": "ABC102", "required_cfu": 6, "acquired_cfu": 6, "year": "1", "title": "Lingua inglese", "ssd": "L-LIN/12", "type_name": "ESAME", "optional_exam": false,
+        "events": [ { "status": "sup", "status_name": "SUPERATO", "date_conv": "2026-06-01", "vote": 31, "media": true, "acquired_cfu": 6 } ] },
+      { "course_code": "ABC103", "required_cfu": 9, "acquired_cfu": 0, "year": "1", "title": "Diritto dell'informatica", "ssd": "IUS/17", "type_name": "ESAME", "optional_exam": false,
+        "events": [ { "status": "sost", "status_name": "DA SOSTENERE", "date_conv": "", "vote": 0, "media": true, "acquired_cfu": 0 } ] },
+      { "course_code": "ABC104", "required_cfu": 3, "acquired_cfu": 3, "year": "1", "title": "Tirocinio", "ssd": null, "type_name": "ALTRO", "optional_exam": false,
+        "events": [ { "status": "conv", "status_name": "CONVALIDATO", "date_conv": "", "vote": 0, "media": false, "acquired_cfu": 3 } ] }
+    ],
+    [
+      { "course_code": "ABC201", "required_cfu": 9, "acquired_cfu": 0, "year": "2", "title": "Sicurezza delle reti", "ssd": "ING-INF/03", "type_name": "ESAME", "optional_exam": true,
+        "events": [ { "status": "sost", "status_name": "DA SOSTENERE", "date_conv": "", "vote": 0, "media": true, "acquired_cfu": 0 } ] }
+    ]
+  ],
+  "counter_years": [], "career_ic": []
+} }

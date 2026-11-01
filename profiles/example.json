@@ -1,0 +1,13 @@
+{
+  "id": "my-university",
+  "name": "La mia università",
+  "spaUrl": "https://students.example.edu/",
+  "apiBase": "https://api.example.edu",
+  "portalUrl": "https://courses.example.edu/user_portal.php",
+  "watchUrlTemplate": "{spa}videolezioni/{course}/{lp}",
+  "tokenCookie": "example_token",
+  "refreshCookie": "example_refresh_token",
+  "mediaHost": "https://media.example.edu/",
+  "subtitleHost": "https://subtitles.example.edu/",
+  "allowedHostSuffixes": ["example.edu"]
+}

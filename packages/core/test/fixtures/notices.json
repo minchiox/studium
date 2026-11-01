@@ -1,0 +1,5 @@
+[
+  { "id": 11, "title": "Sessione d&#39;esame di dicembre", "body": "<p>Le prenotazioni aprono il <b>15 novembre</b>.</p>", "start": "2026-11-01", "end": "2026-12-01", "created_at": "2026-10-30T08:00:00.000000Z",
+    "notice_category": { "name": "Didattica" }, "attachments": [ { "id": 5, "title": "Calendario", "filesize": "120 KB", "file": "1/calendario.pdf", "typefile": { "extension": "PDF" } } ] },
+  { "id": 10, "title": "Manutenzione piattaforma", "body": "Sabato dalle 8 alle 10.", "start": "2026-10-20", "end": null, "created_at": "2026-10-19T08:00:00.000000Z", "notice_category": null, "attachments": [] }
+]

@@ -1,0 +1,33 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Platform profiles contain your university's hosts: only the example and the mock are public
+profiles/*.json
+!profiles/example.json
+!profiles/mock.json
+
+# NEVER commit sessions, captures or downloaded study material
+.auth/
+captures/
+session.json
+
+# Expo / Android
+.expo/
+apps/mobile/android/
+apps/mobile/ios/
+*.apk
+*.aab
+*.keystore
+!debug.keystore
+apps/mobile/e2e/artifacts/
+
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+npm-debug.log*
+dist-export/

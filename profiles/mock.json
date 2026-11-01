@@ -1,0 +1,14 @@
+{
+  "id": "mock",
+  "name": "Universit\u00e0 di prova",
+  "spaUrl": "http://localhost:4010/",
+  "apiBase": "http://localhost:4010/api",
+  "watchUrlTemplate": "{spa}videolezioni/{course}/{lp}",
+  "tokenCookie": "st_token",
+  "refreshCookie": "st_refresh",
+  "mediaHost": "http://localhost:4010/media/",
+  "subtitleHost": "http://localhost:4010/subs/",
+  "allowedHostSuffixes": ["localhost"],
+  "allowInsecureHttp": true,
+  "logoutUrl": "http://localhost:4010/logout"
+}

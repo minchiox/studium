@@ -31,3 +31,8 @@ apps/mobile/e2e/artifacts/
 .vscode/
 npm-debug.log*
 dist-export/
+
+# Local credentials for manual/E2E sign-in: never commit
+cred.txt
+*.cred
+credentials*.txt

@@ -19,8 +19,8 @@ export const PlatformProfile = z.object({
   watchUrlTemplate: z.string().includes('{course}'),
   /** Cookie holding the access token (JWT) set by the web app. */
   tokenCookie: z.string().min(1),
-  /** HttpOnly cookie holding the refresh token (never read by this code). */
-  refreshCookie: z.string().min(1),
+  /** HttpOnly cookie holding the refresh token (informational: never read by this code). */
+  refreshCookie: z.string().min(1).optional(),
   /** Host serving videos and PDF handouts, with trailing slash. */
   mediaHost: z.url().optional(),
   /** Host serving subtitles (.vtt) with the same paths as the videos, with trailing slash. */

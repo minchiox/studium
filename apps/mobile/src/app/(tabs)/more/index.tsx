@@ -2,11 +2,12 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { Group, Row, Screen, Txt } from '@/components/ui';
 import { useStudent } from '@/lib/api';
-import { profile } from '@/lib/profile';
+import { useProfile } from '@/lib/profile';
 import { space } from '@/lib/theme';
 
 export default function More() {
   const s = useStudent().data;
+  const profile = useProfile();
   return (
     <Screen testID="more">
       <View style={{ gap: space.xs }}>

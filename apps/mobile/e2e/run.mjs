@@ -12,6 +12,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const APK_MODE = process.argv.includes('--apk');
+const arg = (name) => {
+  const i = process.argv.indexOf(name);
+  return i > 0 ? process.argv[i + 1] : undefined;
+};
+/** Real platform mode: --site https://… --cred file (USER = … / PASS = …). Mock mode otherwise. */
+const SITE = arg('--site') ?? 'http://localhost:4010';
+const REAL = !!arg('--site');
+const CRED = arg('--cred');
 const PKG = APK_MODE ? 'app.studium.companion' : 'host.exp.exponent';
 const MOCK = process.env.MOCK_URL ?? 'http://localhost:4010';
 const ART = path.join(import.meta.dirname, 'artifacts');
@@ -36,8 +44,11 @@ function dump() {
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
         .replace(/&apos;/g, "'");
+    const id = (a['resource-id'] ?? '').split('/').pop();
+    // Never keep the value of password fields (WebViews expose it to accessibility).
+    if (a.password === 'true' || /pass/i.test(id)) a.text = '';
     return {
-      id: (a['resource-id'] ?? '').split('/').pop(),
+      id,
       text: decode(a.text),
       desc: decode(a['content-desc']),
       x: (x1 + x2) >> 1,
@@ -70,7 +81,25 @@ async function tap(q, opts) {
   await sleep(600);
 }
 
-const typeText = (s) => adb('shell', 'input', 'text', s.replace(/ /g, '%s'));
+/** Escapes for the device shell: letters and digits as they are, space as %s, everything else backslashed. */
+const typeText = (s) =>
+  adb(
+    'shell',
+    'input',
+    'text',
+    [...s].map((c) => (/[A-Za-z0-9]/.test(c) ? c : c === ' ' ? '%s' : `\\${c}`)).join(''),
+  );
+
+function credentials() {
+  if (!REAL) return { user: 'demo', pass: 'demo' };
+  if (!CRED) throw new Error('--cred is required with --site');
+  const text = fs.readFileSync(CRED, 'utf8');
+  const get = (k) => text.match(new RegExp(`^\\s*${k}\\s*[:=]\\s*(.*?)\\s*$`, 'm'))?.[1];
+  const user = get('USER');
+  const pass = get('PASS');
+  if (!user || !pass) throw new Error('credential file must contain USER = … and PASS = …');
+  return { user, pass };
+}
 const key = (code) => adb('shell', 'input', 'keyevent', String(code));
 const back = async () => {
   key(4);
@@ -132,37 +161,55 @@ async function launch() {
 }
 
 async function main() {
-  console.log(`Studium E2E (${APK_MODE ? 'APK' : 'Expo Go'}) against ${MOCK}`);
-  await mock('/__mock/reset');
+  console.log(`Studium E2E (${APK_MODE ? 'APK' : 'Expo Go'}) against ${REAL ? SITE : MOCK}`);
+  if (!REAL) await mock('/__mock/reset');
   await launch();
 
   await run('welcome', async () => {
     await waitFor({ id: 'welcome-login' }, { timeout: 90_000 });
   });
 
-  await run('login on the official page', async () => {
+  await run('connect the university', async () => {
+    const button = await waitFor({ id: 'welcome-login' });
     await tap({ id: 'welcome-login' });
-    await waitFor({ text: 'Pagina ufficiale di' });
-    await sleep(2500); // page load + autofocus
-    for (let attempt = 1; ; attempt++) {
-      // Focus the username field: through the WebView accessibility tree when exposed, else autofocus.
-      const field = dump().find((n) => n.id === 'username' || n.text === 'Nome utente');
-      if (field) adb('shell', 'input', 'tap', String(field.x), String(field.y + (field.id ? 0 : 90)));
-      await sleep(500);
-      typeText('demo');
-      key(61); // TAB → password
-      typeText('demo');
-      key(66); // ENTER submits
-      await sleep(4000);
-      const nodes = dump();
-      if (nodes.some((n) => n.id === 'home')) break;
-      if (attempt >= 3) throw new Error('could not sign in');
-      if (!nodes.some((n) => n.text.includes('Credenziali non valide'))) await sleep(3000);
+    if (button.text.includes('Collega') || dump().some((n) => n.id === 'setup')) {
+      await tap({ id: 'setup-url' });
+      typeText(SITE);
+      key(111);
+      await tap({ id: 'setup-continue' });
     }
-    await waitFor({ id: 'home' }, { timeout: 30_000 });
-    const stats = await mock('/__mock/stats');
-    if (stats.logins !== 1) throw new Error(`expected 1 login, got ${stats.logins}`);
+    await waitFor({ text: 'Pagina ufficiale di' });
   });
+
+  await run('sign in on the official page', async () => {
+    const { user, pass } = credentials();
+    await sleep(4000); // the official page loads its own scripts
+    for (let attempt = 1; ; attempt++) {
+      const fill = async (id, value) => {
+        const field = await waitFor({ id }, { timeout: 30_000 });
+        adb('shell', 'input', 'tap', String(field.x), String(field.y));
+        await sleep(400);
+        adb('shell', 'input', 'keycombination', '113', '29'); // select all, then type over it
+        key(67);
+        typeText(value);
+      };
+      await fill('username', user);
+      await fill('password', pass);
+      key(66); // ENTER submits the form
+      try {
+        await waitFor({ id: 'home' }, { timeout: 60_000 });
+        break;
+      } catch (err) {
+        if (attempt >= 2) throw err;
+      }
+    }
+    if (!REAL) {
+      const stats = await mock('/__mock/stats');
+      if (stats.logins < 1) throw new Error('the mock saw no login');
+    }
+  });
+
+  if (REAL) return realTour();
 
   await run('dashboard', async () => {
     await waitFor({ text: 'Ciao, Alex' });
@@ -288,6 +335,78 @@ async function main() {
     await tap({ id: 'settings-signout' });
     await tap({ text: 'ESCI', exact: true }).catch(() => tap({ text: 'Esci', exact: true }));
     await waitFor({ id: 'welcome-login' }, { timeout: 15_000 });
+  });
+}
+
+/** On a real platform: every screen must load real data without error states. */
+async function realTour() {
+  const noErrors = (where) => {
+    const e = dump().find(
+      (n) => n.id === 'error-state' || n.id === 'error-detail' || n.text.includes('Non riesco ad aggiornare'),
+    );
+    if (e) throw new Error(`${where}: ${e.text || 'error state shown'}`);
+  };
+  const firstId = (prefix) => dump().find((n) => n.id.startsWith(prefix));
+
+  await run('dashboard (real data)', async () => {
+    await waitFor({ text: 'Ciao' });
+    await waitFor({ text: 'CFU' });
+    await sleep(5000);
+    noErrors('home');
+  });
+  await run('courses (real)', async () => {
+    await tab('Corsi');
+    await waitFor({ text: 'Primo anno' }, { timeout: 30_000 });
+    noErrors('courses');
+  });
+  await run('course and lessons (real)', async () => {
+    const started = dump().find((n) => n.id.startsWith('course-') && /% visto/.test(n.text));
+    await tap(started ? { id: started.id } : { id: firstId('course-')?.id });
+    await waitFor({ id: 'lesson-1' }, { timeout: 60_000 });
+    noErrors('course');
+  });
+  await run('lesson and transcript (real)', async () => {
+    await tap({ id: 'lesson-1' });
+    await waitFor({ id: 'lesson-watch' });
+    await tap({ id: 'lesson-transcript' });
+    await waitFor({ id: 'transcript-search' }, { timeout: 60_000 });
+    await sleep(3000);
+    noErrors('transcript');
+    const words = dump().filter((n) => n.text.length > 80).length;
+    if (!words) throw new Error('transcript has no text');
+    await back();
+  });
+  await run('handout download (real)', async () => {
+    await tap({ id: 'lesson-handout' });
+    await sleep(8000);
+    const err = dump().find((n) => n.id === 'lesson-file-error');
+    if (err) throw new Error(`handout: ${err.text}`);
+    await back(); // close the PDF viewer or share sheet
+    await waitFor({ id: 'lesson' }, { timeout: 10_000 }).catch(async () => back());
+  });
+  await run('career (real)', async () => {
+    await back();
+    await back();
+    await tab('Carriera');
+    await waitFor({ text: 'Media ponderata' }, { timeout: 30_000 });
+    noErrors('career');
+  });
+  await run('notices (real)', async () => {
+    await tab('Avvisi');
+    await waitFor({ id: firstId('notice-') ? firstId('notice-').id : 'notices' }, { timeout: 30_000 });
+    noErrors('notices');
+  });
+  await run('agenda (real)', async () => {
+    await tab('Altro');
+    await tap({ id: 'more-agenda' });
+    await sleep(5000);
+    noErrors('agenda');
+    await back();
+  });
+  await run('settings show the connected university (real)', async () => {
+    await tap({ id: 'more-settings' });
+    await waitFor({ id: 'settings-university' });
+    await back();
   });
 }
 

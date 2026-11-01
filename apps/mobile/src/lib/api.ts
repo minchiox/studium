@@ -10,16 +10,19 @@ import {
 } from '@studium/core';
 import { useQuery } from '@tanstack/react-query';
 import { tokenSource } from './auth';
-import { profile } from './profile';
+import { getProfile } from './profile';
 
 let client: LmsClient | null = null;
 
-/** The read-only platform client, created on first use. */
+/** The read-only platform client for the configured university (re-created when the profile changes). */
 export function api(): LmsClient {
-  client ??= new LmsClient(profile, fetchTransport(fetch, 25_000), tokenSource, {
-    concurrency: 4,
-    onBlocked: (method, url) => console.warn(`[guard] blocked ${method} ${url}`),
-  });
+  const profile = getProfile();
+  if (client?.profile !== profile) {
+    client = new LmsClient(profile, fetchTransport(fetch, 25_000), tokenSource, {
+      concurrency: 4,
+      onBlocked: (method, url) => console.warn(`[guard] blocked ${method} ${url}`),
+    });
+  }
   return client;
 }
 

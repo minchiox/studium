@@ -155,7 +155,8 @@ export const ApiCourseProgress = z.looseObject({
   cfu: optNum,
   progress: optNum,
   completed: z.boolean().nullish(),
-  lp_id: z.looseObject({ lp_id: optNum, watched_at: optStr }).nullish(),
+  // An object for started courses; a string (e.g. "") or a number for courses never opened.
+  lp_id: z.union([z.looseObject({ lp_id: optNum, watched_at: optStr }), z.string(), z.number()]).nullish(),
 });
 export type ApiCourseProgress = z.infer<typeof ApiCourseProgress>;
 

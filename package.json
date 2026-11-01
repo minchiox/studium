@@ -1,8 +1,9 @@
 {
   "name": "studium",
   "private": true,
-  "description": "Studium — unofficial, read-only study companion for universities running a Chamilo-based LMS: Android app, MCP server and shared core.",
+  "description": "Studium \u2014 unofficial, read-only study companion for universities running a Chamilo-based LMS: Android app, MCP server and shared core.",
   "license": "MIT",
+  "type": "module",
   "workspaces": [
     "packages/*",
     "apps/*"

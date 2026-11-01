@@ -403,7 +403,12 @@ document.getElementById('v').addEventListener('play', function () {
         200,
         page(
           'Home studente',
-          '<div class="card"><h1 id="home">Home studente</h1><p>Benvenuto nel portale di prova.</p></div>',
+          // Like the real web app, the home page calls the student API with the token from its cookie.
+          `<div class="card"><h1 id="home">Home studente</h1><p>Benvenuto nel portale di prova.</p></div>
+<script>
+var m = document.cookie.match(/(?:^|; )st_token=([^;]+)/);
+if (m) fetch('/api/student/info', { headers: { Authorization: 'Bearer ' + decodeURIComponent(m[1]) } });
+</script>`,
         ),
         headers,
       );
@@ -432,7 +437,7 @@ document.getElementById('v').addEventListener('play', function () {
       }
       const para = l.paragraphs[Number(m[5]) - 1];
       if (!para) return send(res, 404, '');
-      if (m[6] === 'vtt' && m[1] === 'subs') {
+      if (m[6] === 'vtt') {
         let t = 0;
         const cue = (s: number) => new Date(s * 1000).toISOString().slice(11, 23);
         const body = [

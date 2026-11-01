@@ -2,7 +2,7 @@ import { isTokenExpired, type TokenSource } from '@studium/core';
 import { createContext, type ReactNode, use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
-import { profile } from './profile';
+import { getProfile, useProfileState } from './profile';
 import { clearToken, loadToken, saveToken } from './session';
 
 /**
@@ -82,9 +82,12 @@ export function AuthProvider({ children, onSignedOut }: { children: ReactNode; o
   const pending = useRef<Promise<string | null> | null>(null);
   const seq = useRef(0);
 
+  const { profile, ready } = useProfileState();
   useEffect(() => {
-    loadToken().then((t) => setStatus(t ? 'signedIn' : 'signedOut'));
-  }, []);
+    if (!ready) return;
+    // Signed in only with both a token and a configured university.
+    loadToken().then((t) => setStatus(t && profile ? 'signedIn' : 'signedOut'));
+  }, [ready, profile]);
 
   // Only an explicit sign-in page means "signed out". A timeout or a network error (e.g. offline) keeps the
   // session: the request fails, the UI shows cached data and lets the student retry.
@@ -146,9 +149,10 @@ export function AuthProvider({ children, onSignedOut }: { children: ReactNode; o
       async signOut() {
         const token = await loadToken();
         await clearToken();
-        if (profile.logoutUrl) {
+        const logoutUrl = profile?.logoutUrl;
+        if (logoutUrl) {
           // Ends the web session too, so the next sign-in asks for credentials again.
-          await fetch(profile.logoutUrl, {
+          await fetch(logoutUrl, {
             credentials: 'include',
             headers: token ? { authorization: `Bearer ${token}` } : {},
           }).catch(() => undefined);
@@ -157,7 +161,7 @@ export function AuthProvider({ children, onSignedOut }: { children: ReactNode; o
         onSignedOut?.();
       },
     }),
-    [status, tokens, onSignedOut],
+    [status, tokens, onSignedOut, profile],
   );
 
   const onMessage = (e: WebViewMessageEvent) => {
@@ -176,12 +180,16 @@ export function AuthProvider({ children, onSignedOut }: { children: ReactNode; o
   return (
     <AuthContext value={api}>
       {children}
-      {renewal ? (
+      {renewal && profile ? (
         <View style={styles.hidden} pointerEvents="none" importantForAccessibility="no-hide-descendants">
           <WebView
             key={renewal.id}
-            source={{ uri: profile.spaUrl }}
-            injectedJavaScript={tokenWatcherScript(profile.tokenCookie, renewal.previous, RENEW_TIMEOUT_MS)}
+            source={{ uri: getProfile().spaUrl }}
+            injectedJavaScript={tokenWatcherScript(
+              getProfile().tokenCookie,
+              renewal.previous,
+              RENEW_TIMEOUT_MS,
+            )}
             onMessage={onMessage}
             onError={(): void => {
               void finishRenewal(renewal, { failed: true });

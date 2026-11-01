@@ -63,18 +63,21 @@ describe('LmsClient', () => {
       ['ABC103', 1, null], // same year and no progress: alphabetical ("Diritto…" < "Lingua…")
       ['ABC102', 1, null],
       ['ABC104', 1, null],
-      ['ABC201', 2, null],
+      ['ABD201', 2, 5], // plan code ABC201, LMS code ABD201: paired by title
       ['ZZZ999', null, 10],
+      ['YYY888', null, 0],
     ]);
     const first = courses[0];
     expect(first?.exam?.passed).toBe(true);
     expect(first?.lastWatched).toEqual({ lpId: 7, at: '2026-10-31 18:00:00' });
+    // lp_id is "" or 0 for courses never opened: no "last watched", no PLATFORM_CHANGED
+    expect(courses.find((c) => c.code === 'ZZZ999')?.lastWatched).toBeNull();
   });
 
   it('still lists courses when the career is unavailable', async () => {
     const { client, http } = make();
     http.routes.delete('GET /student/evaluation/gr/career');
-    expect((await client.listCourses()).map((c) => c.code)).toEqual(['ABC101', 'ZZZ999']);
+    expect((await client.listCourses()).map((c) => c.code)).toEqual(['ABC101', 'ZZZ999', 'ABD201', 'YYY888']); // by progress without a plan
   });
 
   it('loads lessons in display order with subtitles mapped through the profile', async () => {

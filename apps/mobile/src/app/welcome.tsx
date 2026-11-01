@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, type IconName, Marked, Txt } from '@/components/ui';
-import { profile } from '@/lib/profile';
+import { useProfileState } from '@/lib/profile';
 import { space, usePalette } from '@/lib/theme';
 
 const POINTS: { icon: IconName; text: string }[] = [
@@ -14,6 +14,7 @@ const POINTS: { icon: IconName; text: string }[] = [
 
 export default function Welcome() {
   const c = usePalette();
+  const { profile } = useProfileState();
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: c.bg }]}>
       <View style={{ gap: space.xxl }}>
@@ -42,9 +43,9 @@ export default function Welcome() {
         </View>
         <Button
           testID="welcome-login"
-          label={`Accedi a ${profile.name}`}
-          icon="login"
-          onPress={() => router.push('/login')}
+          label={profile ? `Accedi a ${profile.name}` : 'Collega la tua università'}
+          icon={profile ? 'login' : 'school-outline'}
+          onPress={() => router.push(profile ? '/login' : '/setup')}
         />
       </View>
     </SafeAreaView>

@@ -13,7 +13,6 @@
     "@tanstack/react-query": "^5.105.1",
     "@tanstack/react-query-persist-client": "^5.105.1",
     "expo": "~58.0.22",
-    "expo-build-properties": "~58.0.12",
     "expo-constants": "~58.0.14",
     "expo-device": "~58.0.5",
     "expo-file-system": "~58.0.13",
@@ -59,6 +58,6 @@
     "e2e:apk": "node e2e/run.mjs --apk"
   },
   "private": true,
-  "description": "Studium \u2014 Android study companion (Expo / React Native).",
+  "description": "Studium — Android study companion (Expo / React Native).",
   "main": "expo-router/entry"
 }

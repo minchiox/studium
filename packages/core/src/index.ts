@@ -2,6 +2,7 @@
 export * from './agenda.ts';
 export * from './career.ts';
 export * from './client.ts';
+export * from './discovery.ts';
 export * from './errors.ts';
 export * from './guard.ts';
 export * from './logger.ts';

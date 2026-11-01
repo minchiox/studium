@@ -1,4 +1,39 @@
-{ "data": [
-  { "code": "ABC101", "title": "Analisi dei dati", "cfu": 9, "progress": 72.4, "completed": false, "lp_id": { "lp_id": 7, "watched_at": "2026-10-31 18:00:00" } },
-  { "code": "ZZZ999", "title": "Corso extra", "cfu": null, "progress": 10, "completed": false, "lp_id": null }
-] }
+{
+ "data": [
+  {
+   "code": "ABC101",
+   "title": "Analisi dei dati",
+   "cfu": 9,
+   "progress": 72.4,
+   "completed": false,
+   "lp_id": {
+    "lp_id": 7,
+    "watched_at": "2026-10-31 18:00:00"
+   }
+  },
+  {
+   "code": "ZZZ999",
+   "title": "Corso extra",
+   "cfu": null,
+   "progress": 10,
+   "completed": false,
+   "lp_id": ""
+  },
+  {
+   "code": "YYY888",
+   "title": "Corso mai aperto",
+   "cfu": 6,
+   "progress": 0,
+   "completed": false,
+   "lp_id": 0
+  },
+  {
+   "code": "ABD201",
+   "title": "Sicurezza delle Reti ",
+   "cfu": 9,
+   "progress": 5,
+   "completed": false,
+   "lp_id": ""
+  }
+ ]
+}

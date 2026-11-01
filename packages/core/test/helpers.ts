@@ -39,7 +39,9 @@ export function makeLesson(number: number, overrides: Partial<Lesson> = {}): Les
   };
 }
 
-export const jwt = (exp: number) => `h.${Buffer.from(JSON.stringify({ exp })).toString('base64url')}.sig`;
+/** Realistic JWT shape: base64url JSON header (starts with "eyJ"), payload with `exp`, signature. */
+export const jwt = (exp: number) =>
+  `${Buffer.from('{"alg":"none"}').toString('base64url')}.${Buffer.from(JSON.stringify({ exp })).toString('base64url')}.sig`;
 
 type Handler = (url: URL, req: HttpRequest) => { status: number; body: unknown } | undefined;
 

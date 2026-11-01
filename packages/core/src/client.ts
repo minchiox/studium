@@ -184,9 +184,30 @@ export class LmsClient implements StudyClient {
         });
       }
     }
+    // The same course can have a different code in the study plan and in the LMS (e.g. another cohort):
+    // when codes do not match, pair it with a plan exam of the same title that has no LMS course yet.
+    const norm = (t: string) =>
+      t
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/\W+/g, ' ')
+        .trim();
+    const progressCodes = new Set(progress.map((p) => p.code));
+    for (const p of progress) {
+      if (byCode.has(p.code)) continue;
+      const twin = [...byCode.values()].find(
+        (c) => !progressCodes.has(c.code) && norm(c.title) === norm(p.title),
+      );
+      if (twin) {
+        byCode.delete(twin.code);
+        byCode.set(p.code, { ...twin, code: p.code });
+      }
+    }
     for (const p of progress) {
       const prev = byCode.get(p.code);
-      const lp = p.lp_id?.lp_id;
+      const last = typeof p.lp_id === 'object' && p.lp_id !== null ? p.lp_id : null;
+      const lp = last?.lp_id;
       byCode.set(p.code, {
         code: p.code,
         title: prev?.title ?? p.title.trim(),
@@ -196,7 +217,7 @@ export class LmsClient implements StudyClient {
         progress: p.progress === null || p.progress === undefined ? null : Math.round(p.progress),
         completed: p.completed ?? null,
         exam: prev?.exam ?? null,
-        lastWatched: lp ? { lpId: lp, at: p.lp_id?.watched_at ?? '' } : null,
+        lastWatched: lp ? { lpId: lp, at: last?.watched_at ?? '' } : null,
       });
     }
     return [...byCode.values()].sort(

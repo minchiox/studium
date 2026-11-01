@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { ProfileProvider } from '@/lib/profile';
 import { fonts, palettes } from '@/lib/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -68,10 +69,12 @@ export default function RootLayout() {
       persistOptions={{ persister, maxAge: 7 * 24 * 3600_000 }}
     >
       <ThemeProvider value={navTheme}>
-        <AuthProvider onSignedOut={() => queryClient.clear()}>
-          <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-          <Navigator />
-        </AuthProvider>
+        <ProfileProvider>
+          <AuthProvider onSignedOut={() => queryClient.clear()}>
+            <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+            <Navigator />
+          </AuthProvider>
+        </ProfileProvider>
       </ThemeProvider>
     </PersistQueryClientProvider>
   );
@@ -97,6 +100,7 @@ function Navigator() {
     >
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="welcome" options={{ headerShown: false }} />
+        <Stack.Screen name="setup" options={{ title: 'La tua università' }} />
         <Stack.Screen name="login" options={{ title: 'Accedi' }} />
       </Stack.Protected>
       <Stack.Protected guard={signedIn}>

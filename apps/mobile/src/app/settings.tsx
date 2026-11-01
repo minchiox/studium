@@ -2,12 +2,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Switch } from 'react-native';
+import { Alert, Share, Switch } from 'react-native';
 import { Group, Row, Screen, Txt } from '@/components/ui';
 import { useAgenda } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { deleteAll, formatBytes, totalBytes } from '@/lib/files';
-import { profile } from '@/lib/profile';
+import { clearProfile, useProfile } from '@/lib/profile';
 import { remindersEnabled, setRemindersEnabled, syncReminders } from '@/lib/reminders';
 import { usePalette } from '@/lib/theme';
 
@@ -15,6 +15,7 @@ export default function Settings() {
   const c = usePalette();
   const qc = useQueryClient();
   const { signOut } = useAuth();
+  const profile = useProfile();
   const agenda = useAgenda().data;
   const [reminders, setReminders] = useState(false);
   const [bytes, setBytes] = useState(totalBytes());
@@ -73,6 +74,47 @@ export default function Settings() {
                     deleteAll();
                     qc.removeQueries({ queryKey: ['transcript'] });
                     setBytes(totalBytes());
+                  },
+                },
+              ],
+            )
+          }
+        />
+      </Group>
+      <Group>
+        <Row
+          testID="settings-university"
+          title={profile.name}
+          subtitle={new URL(profile.spaUrl).host}
+          icon="school-outline"
+          chevron={false}
+        />
+        <Row
+          testID="settings-export"
+          title="Esporta configurazione"
+          subtitle="Per usare Studium con la stessa università su un altro telefono"
+          icon="export-variant"
+          onPress={() =>
+            Share.share({ title: 'Configurazione Studium', message: JSON.stringify(profile, null, 2) })
+          }
+        />
+        <Row
+          testID="settings-change-university"
+          title="Cambia università"
+          subtitle="Esci e collega un’altra piattaforma"
+          icon="swap-horizontal"
+          onPress={() =>
+            Alert.alert(
+              'Cambiare università?',
+              'Uscirai dall’account attuale. I file scaricati restano sul telefono.',
+              [
+                { text: 'Annulla', style: 'cancel' },
+                {
+                  text: 'Cambia',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await signOut();
+                    await clearProfile();
                   },
                 },
               ],

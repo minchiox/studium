@@ -286,3 +286,70 @@ export const ApiLiveClass = z.looseObject({
   state: optStr,
   courses: z.array(z.looseObject({ code: z.string(), title: optStr })).nullish(),
 });
+
+// ---------------------------------------------------------------- exam offers (bookable sessions)
+
+/** One bookable exam session. `location` is a name on some platforms, an object on others. */
+export const ApiBookableSlot = z.looseObject({
+  exam_date: z.string(),
+  exam_hour: optStr,
+  exam_hour_finish: optStr,
+  exam_place: optStr,
+  location: z
+    .union([
+      z.string(),
+      z.looseObject({ place_ext: optStr, city: optStr, name_location: optStr }),
+    ])
+    .nullish(),
+  location_id: optNum,
+  start_date: optStr,
+  end_date: optStr,
+  type_of_exam: optStr,
+  exam_online_flag: optNum,
+});
+
+/** `GET /student/get-bookable-exams`: one entry per course, sessions grouped in (usually one-item) arrays. */
+export const ApiBookableCourse = z.looseObject({
+  title: z.string(),
+  code: z.string(),
+  cfu: optNum,
+  exams: z.array(z.union([z.array(ApiBookableSlot), ApiBookableSlot])).nullish(),
+});
+
+/** `GET /student/exams/to-confirm`: results waiting for the student to accept or reject them. */
+export const ApiExamsToConfirm = z.looseObject({
+  toConfirmExams: z.array(z.unknown()).nullish(),
+});
+
+export interface ExamOffer {
+  /** Stable key: course, date, start and place. */
+  id: string;
+  courseCode: string;
+  courseTitle: string;
+  date: string; // YYYY-MM-DD (platform-local)
+  start: string | null; // HH:MM
+  end: string | null;
+  location: string | null;
+  place: string | null; // short code, e.g. "PN"
+  type: string | null;
+  online: boolean | null;
+  /** Booking window, platform-local days, both inclusive. */
+  opensOn: string | null;
+  closesOn: string | null;
+  /** The student already holds a booking for this course on this day. */
+  booked: boolean;
+}
+
+export interface BookableCourse {
+  code: string;
+  title: string;
+  cfu: number | null;
+  offers: ExamOffer[];
+}
+
+export interface ExamsOverview {
+  bookings: ExamBooking[];
+  courses: BookableCourse[];
+  /** Results to accept or reject on the official page. */
+  toConfirm: number;
+}

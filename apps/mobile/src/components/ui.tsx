@@ -248,11 +248,24 @@ export function Pill({
   tone = 'neutral',
 }: {
   label: string;
-  tone?: 'neutral' | 'success' | 'danger' | 'ink';
+  /** `highlight` is the app's signature: the one thing that needs attention now. */
+  tone?: 'neutral' | 'success' | 'danger' | 'ink' | 'highlight';
 }) {
   const c = usePalette();
-  const bg = { neutral: c.surfaceAlt, success: c.successSoft, danger: c.dangerSoft, ink: c.inkSoft }[tone];
-  const fg = { neutral: c.textMuted, success: c.success, danger: c.danger, ink: c.ink }[tone];
+  const bg = {
+    neutral: c.surfaceAlt,
+    success: c.successSoft,
+    danger: c.dangerSoft,
+    ink: c.inkSoft,
+    highlight: c.highlight,
+  }[tone];
+  const fg = {
+    neutral: c.textMuted,
+    success: c.success,
+    danger: c.danger,
+    ink: c.ink,
+    highlight: c.onHighlight,
+  }[tone];
   return (
     <View style={[styles.pill, { backgroundColor: bg }]}>
       <Text style={[type.caption, { color: fg, fontFamily: 'Figtree_500Medium' }]}>{label}</Text>

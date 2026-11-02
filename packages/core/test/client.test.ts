@@ -161,6 +161,16 @@ describe('LmsClient', () => {
     expect(assertCourseCode(' abc101 ')).toBe('ABC101');
   });
 
+  it('shares one request between screens asking for the same data at once', async () => {
+    const { client, http } = make();
+    const [a, b] = await Promise.all([client.getBookings(), client.getExamsOverview()]);
+    expect(b.bookings).toEqual(a);
+    expect(http.calls.filter((c) => c === 'GET /student/get-reservations')).toHaveLength(1);
+    // once settled, a new call goes to the network again (no stale cache in the client)
+    await client.getBookings();
+    expect(http.calls.filter((c) => c === 'GET /student/get-reservations')).toHaveLength(2);
+  });
+
   it('fetchText returns null on 4xx', async () => {
     expect(await make().client.fetchText('https://subs.example.edu/missing.vtt')).toBeNull();
   });

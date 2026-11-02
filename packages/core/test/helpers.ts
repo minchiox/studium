@@ -62,6 +62,8 @@ export class FakeHttp implements Transport {
     this.routes.set('GET /student/class/sessions', fixtureJson('live-classes.json'));
     this.routes.set('GET /notice/fp_notices', fixtureJson('notices.json'));
     this.routes.set('GET /notice/unread', 3);
+    this.routes.set('GET /student/get-bookable-exams', fixtureJson('bookable-exams.json'));
+    this.routes.set('GET /student/exams/to-confirm', fixtureJson('exams-to-confirm.json'));
     this.routes.set('GET /student/course/ABC101/video-lessons/0', fixtureJson('lesson-refs.json'));
     this.routes.set(
       'GET /student/course/ABC101/video-lesson/5/paragraphs/5',

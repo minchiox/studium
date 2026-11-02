@@ -84,6 +84,13 @@ export default function CourseScreen() {
                         setDlDone(res);
                       }}
                     />
+                    <Button
+                      testID="course-quiz"
+                      kind="secondary"
+                      icon="head-question-outline"
+                      label="Quiz sul corso"
+                      onPress={() => router.push({ pathname: '/quiz', params: { mode: 'course', code } })}
+                    />
                     {dlDone ? (
                       <Txt
                         variant="small"

@@ -4,15 +4,19 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult, ToolAnnotations } from '@modelcontextprotocol/sdk/types.js';
 import {
   assertCourseCode,
+  bookingWindow,
   careerStats,
   computeProgress,
   fetchTranscripts,
   formatDuration,
   formatError,
   formatVote,
+  generateQuiz,
   isPdf,
   type Logger,
   NotFoundError,
+  offersAt,
+  preferredLocation,
   renderLessonMarkdown,
   StudiumError,
   silentLogger,
@@ -73,8 +77,9 @@ export function createServer(deps: ServerDeps): McpServer {
       instructions:
         'Read-only access to the student platform of a Chamilo-based university LMS: courses, lessons, transcripts, PDF handouts and ' +
         'viewing progress. Start with list_courses, then list_lessons / get_transcript. Use sync_course to download a ' +
-        'whole course into the workspace. The server never records attendance or progress: lessons must be watched by ' +
-        'the student on the platform.',
+        'whole course into the workspace. get_exams lists bookings and bookable exam sessions; practice_quiz builds ' +
+        'a quiz from a lesson. The server never records attendance or progress and never books exams: lessons are ' +
+        'watched, and exams booked, by the student on the official platform.',
     },
   );
 
@@ -301,6 +306,98 @@ export function createServer(deps: ServerDeps): McpServer {
           starts: new Date(a.startsAt).toISOString(),
           ends: a.endsAt ? new Date(a.endsAt).toISOString() : null,
           course: a.courseCode,
+        })),
+      );
+    },
+  );
+
+  tool(
+    'get_exams',
+    'Exams and bookings',
+    'Booked exams, bookable exam sessions with their booking window (open, upcoming, closed; last day to book) and ' +
+      "results waiting to be confirmed. Sessions default to the student's usual exam seat. Booking, cancelling and " +
+      'confirming results happen only on the official page (bookingUrl, resultsUrl): this tool never books.',
+    {
+      course: courseArg.optional().describe('Only this course'),
+      location: z.string().optional().describe('Exam seat; "all" for every seat. Default: the usual one'),
+      limit: z.number().int().min(1).max(50).default(5).describe('Sessions per course'),
+    },
+    READ,
+    async ({ course, location, limit }) => {
+      const o = await client.getExamsOverview();
+      const seat = location === 'all' ? null : (location ?? preferredLocation(o.bookings));
+      const titles = Object.fromEntries(o.courses.map((c) => [c.code, c.title]));
+      return json({
+        bookings: o.bookings.map((b) => ({ ...b, course: titles[b.courseCode] ?? b.courseCode })),
+        seat: seat ?? 'all',
+        sessions: o.courses
+          .filter((c) => !course || c.code === course)
+          .map((c) => ({
+            code: c.code,
+            title: c.title,
+            sessions: offersAt(c, seat)
+              .slice(0, limit)
+              .map((x) => ({
+                date: x.date,
+                start: x.start,
+                type: x.type,
+                location: x.location,
+                bookFrom: x.opensOn,
+                bookUntil: x.closesOn,
+                window: bookingWindow(x),
+                booked: x.booked,
+              })),
+          }))
+          .filter((c) => c.sessions.length),
+        resultsToConfirm: o.toConfirm,
+        bookingUrl: client.officialPage('exams'),
+        resultsUrl: client.officialPage('results'),
+      });
+    },
+  );
+
+  tool(
+    'practice_quiz',
+    'Practice quiz',
+    'Multiple-choice and true/false questions generated locally (no AI service) from the transcript of a lesson, ' +
+      'with the correct answer, an explanation and the source paragraph. Ask them one at a time and reveal the ' +
+      'answer only after the student replies. Change `seed` for a different set.',
+    {
+      course: courseArg,
+      lesson: lessonArg,
+      count: z.number().int().min(1).max(30).default(8),
+      seed: z.number().int().min(1).default(1),
+    },
+    READ,
+    async ({ course, lesson, count, seed }) => {
+      const l = await client.getLesson(course, lesson);
+      const texts = await fetchTranscripts(client, l, config.concurrency);
+      const sources = l.paragraphs.flatMap((p, i) => {
+        const t = texts[i];
+        return t
+          ? [
+              {
+                id: `${course}:${l.number}:${p.number}`,
+                courseCode: course,
+                lesson: l.number,
+                paragraph: p.number,
+                title: p.title,
+                text: t,
+              },
+            ]
+          : [];
+      });
+      const questions = generateQuiz(sources, { count, seed });
+      if (!questions.length) throw new NotFoundError(`Not enough transcript in lesson ${lesson} for a quiz`);
+      return json(
+        questions.map((q) => ({
+          kind: q.kind,
+          question: q.prompt,
+          passage: q.passage,
+          options: q.options,
+          answer: q.options[q.answer],
+          explanation: q.explanation,
+          source: `${q.source.lesson}.${q.source.paragraph} ${q.source.title}`,
         })),
       );
     },

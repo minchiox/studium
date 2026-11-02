@@ -40,6 +40,20 @@ export function parseProfile(input: unknown): PlatformProfile {
   return { ...res.data, apiBase: res.data.apiBase.replace(/\/+$/, '') };
 }
 
+/** Pages of the official web app that Studium opens instead of writing to the platform. */
+export const OFFICIAL_PAGES = {
+  /** Exam calendar: booking and cancelling exams. */
+  exams: 'appelli',
+  /** Accepting or rejecting exam results. */
+  results: 'confirm-exam',
+} as const;
+
+export type OfficialPage = keyof typeof OFFICIAL_PAGES;
+
+export function officialPageUrl(profile: PlatformProfile, page: OfficialPage): string {
+  return new URL(OFFICIAL_PAGES[page], profile.spaUrl).toString();
+}
+
 export function watchUrl(profile: PlatformProfile, course: string, lpId: number): string {
   return profile.watchUrlTemplate
     .replace('{spa}', profile.spaUrl)

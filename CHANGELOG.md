@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 — 2026-11-02
+
+- **Esami e appelli** (nuova scheda): prenotazioni, appelli prenotabili nella sede abituale con la scadenza della prenotazione, esiti da confermare. Prenotazione, cancellazione e conferma degli esiti sulla pagina ufficiale, aperta nell'app ([ADR 0004](docs/adr/0004-prenotazioni-sulla-pagina-ufficiale.md)). Promemoria quando le prenotazioni stanno per chiudere.
+- **Quiz ed esercitazioni**: quiz su una lezione o su un corso scaricato, creati in locale dalle trascrizioni; spiegazione e link al paragrafo; banca personale con ripasso a intervalli. Provider IA facoltativo, compatibile OpenAI, con la chiave dell'utente nel Keystore.
+- **Home "Da fare"**: le prossime azioni in ordine di urgenza. Avvisi dalla campanella in Home e da Altro.
+- Grafica: l'evidenziatore segnala ciò che richiede attenzione oggi; il rosso resta per gli errori.
+- Prestazioni: richieste identiche condivise, avvisi in lista virtualizzata, APK per architettura e riduzione delle risorse.
+- Server MCP 1.1.0: `get_exams` e `practice_quiz`.
+- Documentazione delle API della piattaforma ([docs/api.md](docs/api.md)).
+
 ## 1.1.0 — 2026-11-01
 
 - Configurazione dell'università dall'app: inserisci l'indirizzo, accedi, e Studium riconosce la piattaforma (API, cookie di sessione, host di video e sottotitoli). Configurazione esportabile e importabile; possibilità di cambiare università.

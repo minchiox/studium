@@ -288,6 +288,42 @@ export function createMockServer(opts: MockOptions = {}) {
           code: 200,
         },
       };
+    if (path === '/student/get-bookable-exams') {
+      // Like the real platform: dates as the UTC instant of a local midnight, one array per session.
+      const iso = (offset: number) => `${day(offset)}T00:00:00.000000+01:00`;
+      const slot = (offset: number, location: string, id: number) => [
+        {
+          exam_date: iso(offset),
+          exam_hour: '09:30:00',
+          exam_hour_finish: '21:00:00',
+          exam_place: location.slice(0, 2).toUpperCase(),
+          location,
+          location_id: id,
+          start_date: iso(offset - 20),
+          end_date: iso(offset - 2),
+          type_of_exam: 'Scritto online',
+        },
+      ];
+      return {
+        status: 200,
+        body: [
+          {
+            title: 'Analisi dei dati',
+            code: 'DAT101',
+            cfu: 9,
+            exams: [slot(12, 'Sede centrale', 1), slot(12, 'Sede nord', 2), slot(30, 'Sede centrale', 1)],
+          },
+          {
+            title: "Diritto dell'informatica",
+            code: 'LAW102',
+            cfu: 9,
+            exams: [slot(4, 'Sede centrale', 1), slot(26, 'Sede centrale', 1), slot(40, 'Sede nord', 2)],
+          },
+        ],
+      };
+    }
+    if (path === '/student/exams/to-confirm')
+      return { status: 200, body: { data: { toConfirmExams: [{ id: 1 }] }, code: 200 } };
     if (path === '/notice/fp_notices') return { status: 200, body: notices(new Date()) };
     if (path === '/notice/unread') return { status: 200, body: 2 };
     if (path === '/notice/attachment/') {
@@ -411,6 +447,19 @@ if (m) fetch('/api/student/info', { headers: { Authorization: 'Bearer ' + decode
 </script>`,
         ),
         headers,
+      );
+    }
+
+    if (path === '/appelli' || path === '/confirm-exam') {
+      if (!jar.st_refresh || !refresh.has(jar.st_refresh)) return send(res, 302, '', { location: '/login' });
+      const title = path === '/appelli' ? 'Calendario appelli' : 'Conferma esiti';
+      return send(
+        res,
+        200,
+        page(
+          title,
+          `<h1>${title}</h1><p id="official-page">Pagina ufficiale della piattaforma (mock): qui lo studente prenota o conferma.</p>`,
+        ),
       );
     }
 

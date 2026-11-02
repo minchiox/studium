@@ -112,6 +112,12 @@ function Navigator() {
         <Stack.Screen name="review" options={{ title: 'Ripasso video' }} />
         <Stack.Screen name="notice/[id]" options={{ title: 'Avviso' }} />
         <Stack.Screen name="agenda" options={{ title: 'Agenda' }} />
+        <Stack.Screen name="notices" options={{ title: 'Avvisi' }} />
+        <Stack.Screen name="exam-seat" options={{ title: 'Sede d’esame' }} />
+        <Stack.Screen name="official" options={{ title: 'Pagina ufficiale' }} />
+        <Stack.Screen name="quiz" options={{ title: 'Quiz' }} />
+        <Stack.Screen name="practice" options={{ title: 'Esercitazioni' }} />
+        <Stack.Screen name="ai-settings" options={{ title: 'Quiz con l’IA' }} />
         <Stack.Screen name="downloads" options={{ title: 'Download' }} />
         <Stack.Screen name="search" options={{ title: 'Cerca nelle trascrizioni' }} />
         <Stack.Screen name="settings" options={{ title: 'Impostazioni' }} />

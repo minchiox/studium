@@ -106,6 +106,71 @@ const back = async () => {
   await sleep(800);
 };
 const swipeDown = () => adb('shell', 'input', 'swipe', '540', '700', '540', '1700', '400');
+const swipeUp = () => adb('shell', 'input', 'swipe', '540', '1800', '540', '900', '400');
+/** Scrolls down until the node is on screen. */
+async function scrollTo(q, max = 12) {
+  for (let i = 0; i < max; i++) {
+    const n = dump().find((x) => matches(x, q));
+    if (n && n.y < 2100) return n;
+    swipeUp();
+    await sleep(700);
+  }
+  throw new Error(`not found while scrolling: ${JSON.stringify(q)}`);
+}
+/** A whole local quiz from the lesson screen: answer, see the explanation, reach the summary. */
+async function quizTour(suffix) {
+  await run(`local quiz on a lesson${suffix}`, async () => {
+    const btn = await scrollTo({ id: 'lesson-quiz' });
+    adb('shell', 'input', 'tap', String(btn.x), String(btn.y));
+    await waitFor({ id: 'quiz-option-0' }, { timeout: 90_000 });
+    shot(`quiz question${suffix}`);
+    for (let i = 0; i < 15; i++) {
+      await tap({ id: 'quiz-option-0' });
+      await waitFor({ id: 'quiz-feedback' });
+      if (i === 0) shot(`quiz feedback${suffix}`);
+      const next = await scrollTo({ id: 'quiz-next' });
+      adb('shell', 'input', 'tap', String(next.x), String(next.y));
+      await sleep(700);
+      if (dump().some((n) => n.id === 'quiz-summary')) break;
+    }
+    await waitFor({ id: 'quiz-summary' });
+    shot(`quiz summary${suffix}`);
+    await tap({ text: 'Fine', exact: true });
+    await waitFor({ id: 'lesson' });
+  });
+}
+/** The question bank after a quiz. */
+async function practiceTour(suffix) {
+  await run(`practice bank${suffix}`, async () => {
+    await tab('Altro');
+    await tap({ id: 'more-practice' });
+    await waitFor({ id: 'practice-due' });
+    await waitFor({ text: 'La tua banca', exact: true });
+    await back();
+  });
+}
+/** Exams section: bookings, seat filter, official booking page (opened, never acted upon). */
+async function examsTour(suffix, officialText) {
+  await run(`exams and booking${suffix}`, async () => {
+    await tab('Esami');
+    await waitFor({ text: 'Prenotati', exact: true }, { timeout: 30_000 });
+    await waitFor({ text: 'Appelli prenotabili', exact: true });
+    shot(`exams${suffix}`);
+    await tap({ id: 'exams-seat' });
+    await waitFor({ id: 'exam-seat' });
+    await tap({ text: 'Tutte le sedi', exact: true });
+    await waitFor({ id: 'exams' });
+    await waitFor({ text: 'Tutte le sedi' });
+    const book = await scrollTo({ id: 'exams-book' });
+    adb('shell', 'input', 'tap', String(book.x), String(book.y));
+    await waitFor({ id: 'official-webview' });
+    if (officialText) await waitFor({ text: officialText }, { timeout: 30_000 });
+    else await sleep(8000);
+    shot(`official booking page${suffix}`);
+    await back();
+    await waitFor({ id: 'exams' });
+  });
+}
 /** Bottom navigation: the exact label in the lowest part of the screen (titles and body text may repeat it). */
 async function tab(label) {
   const until = Date.now() + 10_000;
@@ -290,7 +355,8 @@ async function main() {
   });
 
   await run('notices and attachment', async () => {
-    await tab('Avvisi');
+    await tab('Altro');
+    await tap({ id: 'more-notices' });
     await tap({ id: 'notice-3' });
     await waitFor({ text: 'Le prenotazioni per gli appelli' });
     await tap({ id: 'attachment-31' });
@@ -298,6 +364,8 @@ async function main() {
     // The system PDF viewer (or the share sheet) opens on top: come back to the app.
     await back();
     await waitFor({ id: 'notice' }, { timeout: 10_000 }).catch(async () => back());
+    await back();
+    await waitFor({ id: 'notices' });
     await back();
   });
 
@@ -308,6 +376,8 @@ async function main() {
     await waitFor({ text: 'Appello aperto' });
     await back();
   });
+
+  await examsTour('', 'Calendario appelli');
 
   await run('session renewal through the web app', async () => {
     await mock('/__mock/expire');
@@ -384,6 +454,7 @@ async function realTour() {
     await back(); // close the PDF viewer or share sheet
     await waitFor({ id: 'lesson' }, { timeout: 10_000 }).catch(async () => back());
   });
+  await quizTour(' (real)');
   await run('career (real)', async () => {
     await back();
     await back();
@@ -392,9 +463,11 @@ async function realTour() {
     noErrors('career');
   });
   await run('notices (real)', async () => {
-    await tab('Avvisi');
+    await tab('Altro');
+    await tap({ id: 'more-notices' });
     await waitFor({ id: firstId('notice-') ? firstId('notice-').id : 'notices' }, { timeout: 30_000 });
     noErrors('notices');
+    await back();
   });
   await run('agenda (real)', async () => {
     await tab('Altro');
@@ -403,6 +476,8 @@ async function realTour() {
     noErrors('agenda');
     await back();
   });
+  await examsTour(' (real)');
+  await practiceTour(' (real)');
   await run('settings show the connected university (real)', async () => {
     await tap({ id: 'more-settings' });
     await waitFor({ id: 'settings-university' });

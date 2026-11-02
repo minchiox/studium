@@ -1,6 +1,6 @@
 {
   "name": "@studium/core",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Platform-agnostic, read-only client for Chamilo-based university LMS web apps (runs in Node and React Native).",
   "license": "MIT",
   "type": "module",

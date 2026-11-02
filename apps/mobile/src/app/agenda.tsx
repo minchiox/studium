@@ -1,4 +1,5 @@
 import type { AgendaItem } from '@studium/core';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Switch, View } from 'react-native';
 import { Empty, Group, Pill, QueryView, Row, Screen, Section, Txt } from '@/components/ui';
@@ -29,11 +30,20 @@ export default function Agenda() {
     <Screen refreshing={q.isRefetching} onRefresh={() => void q.refetch()} testID="agenda">
       <Group>
         <Row
+          testID="agenda-exams"
+          title="Esami e appelli"
+          subtitle="Prenota, controlla le scadenze e gli esiti"
+          icon="calendar-check-outline"
+          onPress={() => router.navigate('/exams')}
+        />
+      </Group>
+      <Group>
+        <Row
           title="Promemoria per gli esami"
           subtitle={
             denied
               ? 'Permesso negato: abilita le notifiche nelle impostazioni di Android.'
-              : 'La sera prima e 2 ore prima'
+              : 'La sera prima e 2 ore prima, e quando chiudono le prenotazioni'
           }
           icon="bell-ring-outline"
           right={

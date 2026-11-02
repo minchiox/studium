@@ -2,6 +2,7 @@ import {
   type AgendaItem,
   type Career,
   type Course,
+  type ExamsOverview,
   fetchTransport,
   type Lesson,
   LmsClient,
@@ -33,6 +34,7 @@ export const keys = {
   career: ['career'] as const,
   student: ['student'] as const,
   agenda: ['agenda'] as const,
+  exams: ['exams'] as const,
   notices: ['notices'] as const,
   unread: ['notices', 'unread'] as const,
   lessons: (code: string) => ['lessons', code] as const,
@@ -62,6 +64,14 @@ export function useAgenda() {
     staleTime: 15 * MIN,
   });
 }
+
+/** Bookings, bookable sessions ("appelli") and results to confirm. */
+export const useExams = () =>
+  useQuery<ExamsOverview>({
+    queryKey: keys.exams,
+    queryFn: () => api().getExamsOverview(),
+    staleTime: 15 * MIN,
+  });
 
 export const useLessons = (code: string) =>
   useQuery<Lesson[]>({

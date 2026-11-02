@@ -141,6 +141,13 @@ describe('bookable exams', () => {
       'Sede centrale',
     );
     expect(preferredLocation([])).toBeNull();
+    // one booking each: the soonest exam wins, not the alphabet
+    expect(
+      preferredLocation([
+        { ...b('Sede ovest'), date: '2026-11-13' },
+        { ...b('Sede est'), date: '2026-11-02' },
+      ]),
+    ).toBe('Sede est');
     const courses = mapBookableCourses(raw());
     expect(offerLocations(courses)).toEqual(['Sede centrale', 'Sede nord']);
     const law = courses.find((c) => c.code === 'ABC103');

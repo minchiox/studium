@@ -136,11 +136,15 @@ export function closingSoon(
   return out.sort((a, b) => (a.closesOn ?? '').localeCompare(b.closesOn ?? ''));
 }
 
-/** The student's usual exam seat: the most frequent location among their bookings, if any. */
+/** The student's usual exam seat: the most frequent location among their bookings; ties go to the soonest. */
 export function preferredLocation(bookings: readonly ExamBooking[]): string | null {
-  const counts = new Map<string, number>();
-  for (const b of bookings) if (b.location) counts.set(b.location, (counts.get(b.location) ?? 0) + 1);
-  return [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? null;
+  const counts = new Map<string, { n: number; first: string }>();
+  for (const b of bookings) {
+    if (!b.location) continue;
+    const c = counts.get(b.location);
+    counts.set(b.location, { n: (c?.n ?? 0) + 1, first: c && c.first < b.date ? c.first : b.date });
+  }
+  return [...counts].sort((a, b) => b[1].n - a[1].n || a[1].first.localeCompare(b[1].first))[0]?.[0] ?? null;
 }
 
 /** All locations offered, alphabetical (Italian collation). */

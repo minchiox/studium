@@ -4,21 +4,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Studium</title>
-  <meta name="description" content="Studium è l'app Android open source e non ufficiale per gli studenti delle università online: lezioni, trascrizioni, dispense offline, libretto ed esami. Nessun server di mezzo, nessuna telemetria.">
+  <meta name="description" content="Studium è l'app gratuita per studiare con l'università online dal telefono: lezioni da riprendere, testi da cercare, dispense offline, esami e libretto. Senza pubblicità e senza account.">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0B1120" media="(prefers-color-scheme: dark)">
   <meta property="og:title" content="Studium">
-  <meta property="og:description" content="Il client open source per gli studenti delle università online. Il telefono parla solo con la tua università.">
+  <meta property="og:description" content="Studia con l'università online dal telefono. Gratis, senza pubblicità, senza account.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://minchiox.github.io/studium/screenshots/overview.png">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234338CA'/%3E%3Cpath d='M7 19.5c5-1.6 13-1.6 18 0' stroke='%23FCD34D' stroke-width='5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M16 7 5 12.5 16 18l11-5.5L16 7Z' fill='%23fff'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,700;1,7..72,500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,500;0,7..72,700;1,7..72,500&display=swap">
   <style>
     /* Layout: a page of the student's notebook. Ruled paper and a margin line in the hero, the app's amber
-       highlighter as the single bold accent, indigo ink for actions. Tokens mirror the app's design system. */
+       highlighter as the single bold accent, indigo ink for actions. Each feature gets its own screen of the app.
+       Tokens mirror the app's design system. */
     :root {
       --paper: #F8FAFC;
       --sheet: #FFFFFF;
@@ -38,12 +39,12 @@
       --no: #B91C1C;
       --night: #0B1120;
       --night-text: #CBD5E1;
+      --night-muted: #94A3B8;
       --night-line: rgba(148, 163, 184, .18);
       --shadow: 15 23 42;
 
       --display: "Literata", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
       --body: "Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
       --step-0: 1rem;
       --step-1: 1.125rem;
@@ -61,16 +62,14 @@
         --paper: #0B1120; --sheet: #111A2E; --sheet-alt: #1A2540; --graphite: #E2E8F0; --muted: #94A3B8;
         --rule: #1E293B; --rule-strong: #2B3954; --ink: #A5B4FC; --ink-hover: #C7D2FE; --ink-soft: #262F5E;
         --on-ink: #0B1120; --marker: #FBBF24; --on-marker: #1C1917; --margin-line: rgba(165, 180, 252, .2);
-        --ok: #6EE7B7; --no: #FCA5A5; --night: #060A14; --night-text: #CBD5E1; --night-line: rgba(148, 163, 184, .14);
-        --shadow: 0 0 0; color-scheme: dark;
+        --ok: #6EE7B7; --no: #FCA5A5; --night: #060A14; --shadow: 0 0 0; color-scheme: dark;
       }
     }
     :root[data-theme="dark"] {
       --paper: #0B1120; --sheet: #111A2E; --sheet-alt: #1A2540; --graphite: #E2E8F0; --muted: #94A3B8;
       --rule: #1E293B; --rule-strong: #2B3954; --ink: #A5B4FC; --ink-hover: #C7D2FE; --ink-soft: #262F5E;
       --on-ink: #0B1120; --marker: #FBBF24; --on-marker: #1C1917; --margin-line: rgba(165, 180, 252, .2);
-      --ok: #6EE7B7; --no: #FCA5A5; --night: #060A14; --night-text: #CBD5E1; --night-line: rgba(148, 163, 184, .14);
-      --shadow: 0 0 0; color-scheme: dark;
+      --ok: #6EE7B7; --no: #FCA5A5; --night: #060A14; --shadow: 0 0 0; color-scheme: dark;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -89,15 +88,12 @@
     :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
     h1, h2, h3 { font-family: var(--display); color: var(--graphite); text-wrap: balance; margin: 0; }
     h2 { font-size: var(--step-4); line-height: 1.15; font-weight: 700; letter-spacing: -.015em; }
-    h3 { font-size: var(--step-2); line-height: 1.3; font-weight: 500; }
+    h3 { font-size: var(--step-1); line-height: 1.35; font-weight: 600; font-family: var(--body); }
     p { margin: 0; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-    code, .mono { font-family: var(--mono); font-size: .875em; }
     .wrap { width: 100%; max-width: 72rem; margin-inline: auto; padding-left: var(--gutter); padding-right: var(--gutter-r); }
-    .eyebrow {
-      font: 600 .8125rem/1.2 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
-    }
-    .lede { font-size: var(--step-1); color: var(--muted); max-width: 38rem; }
+    .eyebrow { font: 600 .8125rem/1.2 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .lede { font-size: var(--step-1); color: var(--muted); max-width: 36rem; }
     .skip {
       position: absolute; left: var(--gutter); top: -100px; z-index: 100; background: var(--ink); color: var(--on-ink);
       padding: .6rem 1rem; border-radius: 10px; font-weight: 600; text-decoration: none;
@@ -116,7 +112,7 @@
       @keyframes swipe { from { background-size: 0% 74%; color: inherit; } to { background-size: 100% 74%; } }
     }
 
-    /* ------------------------------------------------------------- top notice + header */
+    /* ------------------------------------------------------------- notice + header */
     .notice { background: var(--graphite); color: var(--paper); font-size: .875rem; }
     .notice p { padding-block: .5rem; text-align: center; }
     .notice strong { color: var(--marker); font-weight: 600; }
@@ -134,7 +130,7 @@
     .nav-links { display: flex; align-items: center; gap: 1.5rem; list-style: none; margin: 0; padding: 0; font-weight: 500; font-size: .9375rem; }
     .nav-links a:not(.btn) { color: var(--muted); text-decoration: none; }
     .nav-links a:not(.btn):hover { color: var(--graphite); }
-    @media (max-width: 640px) { .nav-links .hide-sm { display: none; } }
+    @media (max-width: 720px) { .nav-links .hide-sm { display: none; } }
 
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 48px;
@@ -149,29 +145,26 @@
     .btn-sm { min-height: 40px; padding: .5rem 1rem; font-size: .9375rem; }
     @media (prefers-reduced-motion: no-preference) { .btn:hover { transform: translateY(-1px); } }
 
+    /* Every grid starts as one shrinkable column, so nothing pushes the page wider on a phone. */
+    .hero-grid, .spot, .more, .privacy-grid, .steps, .download, .foot { display: grid; grid-template-columns: minmax(0, 1fr); }
+
     /* ------------------------------------------------------------- hero: ruled notebook paper */
     .hero {
       position: relative; overflow: hidden; border-bottom: 1px solid var(--rule);
       background-color: var(--paper);
       background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
     }
-    .hero::before { /* the notebook's margin line */
-      content: ""; position: absolute; inset-block: 0; left: max(28px, calc(50% - 36rem + 8px)); width: 2px; background: var(--margin-line);
-    }
-    .hero-grid, .libretto-grid, .ledger, .download, .foot, .steps, .section-head { grid-template-columns: minmax(0, 1fr); }
-    .hero-grid { position: relative; display: grid; gap: 3rem; align-items: center; padding-block: 4.5rem 5rem; }
+    .hero::before { content: ""; position: absolute; inset-block: 0; left: max(28px, calc(50% - 36rem + 8px)); width: 2px; background: var(--margin-line); }
+    .hero-grid { position: relative; gap: 3rem; align-items: center; padding-block: 4.5rem 5rem; }
     @media (min-width: 960px) { .hero-grid { grid-template-columns: 1.05fr 1fr; padding-block: 5.5rem 6rem; } }
     .hero-copy { display: grid; gap: 1.5rem; min-width: 0; padding-left: clamp(0px, 3vw, 2.5rem); }
     .hero h1 { font-size: var(--step-5); line-height: 1.04; font-weight: 700; letter-spacing: -.025em; }
-    .hero h1 em { font-style: italic; font-weight: 500; }
-    .hero .tagline { font: 500 var(--step-2)/1.35 var(--body); color: var(--graphite); max-width: 32rem; }
     .cta-row { display: flex; flex-wrap: wrap; gap: .75rem; }
     .facts { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; color: var(--muted); font-size: .9375rem; list-style: none; margin: 0; padding: 0; }
     .facts li { display: inline-flex; align-items: center; gap: .4rem; }
     .facts svg { width: 18px; height: 18px; color: var(--ok); flex: none; }
 
-    /* Three phones cut from one screenshot of four 378×750 screens. */
-    .phones { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4%; align-items: start; max-width: 34rem; margin-inline: auto; width: 100%; }
+    /* Phones cut from one screenshot of four 378×750 screens. */
     .phone {
       aspect-ratio: 378 / 750; max-width: 100%; border-radius: 22px; padding: 6px; background: #0F172A;
       box-shadow: 0 1px 0 rgb(255 255 255 / .08) inset, 0 24px 48px -20px rgb(var(--shadow) / .5);
@@ -181,115 +174,98 @@
       background-image: url("screenshots/overview.png"); background-size: 400% 100%; background-repeat: no-repeat;
     }
     .phone[data-screen="home"] .screen { background-position: 0% 0; }
+    .phone[data-screen="course"] .screen { background-position: 33.333% 0; }
     .phone[data-screen="lesson"] .screen { background-position: 66.667% 0; }
     .phone[data-screen="career"] .screen { background-position: 100% 0; }
-    .phone:nth-child(1) { margin-top: 3.5rem; }
-    .phone:nth-child(2) { transform: scale(1.06); z-index: 1; }
-    .phone:nth-child(3) { margin-top: 2rem; }
-    .phones figcaption { grid-column: 1 / -1; margin-top: 1.25rem; text-align: center; font-size: .8125rem; color: var(--muted); }
+    .phones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4%; align-items: start; max-width: 34rem; margin: 0 auto; width: 100%; }
+    .phones .phone:nth-child(1) { margin-top: 3.5rem; }
+    .phones .phone:nth-child(2) { transform: scale(1.06); z-index: 1; }
+    .phones .phone:nth-child(3) { margin-top: 2rem; }
 
     /* ------------------------------------------------------------- sections */
     section { scroll-margin-top: 80px; }
     .section { padding-block: 5.5rem; }
-    .section-head { display: grid; gap: 1rem; margin-bottom: 3rem; max-width: 44rem; }
+    .section-head { display: grid; gap: 1rem; margin-bottom: 3.5rem; max-width: 44rem; }
 
-    /* Libretto: the detail only this subject has. */
-    .libretto-grid { display: grid; gap: 3rem; align-items: start; }
-    @media (min-width: 960px) { .libretto-grid { grid-template-columns: 1fr 1.15fr; } }
-    .libretto-copy { display: grid; gap: 1.25rem; min-width: 0; }
-    .formula {
-      font-family: var(--mono); font-size: .9375rem; background: var(--sheet-alt); border: 1px solid var(--rule);
-      border-radius: 10px; padding: .9rem 1rem; color: var(--graphite); overflow-x: auto;
+    /* Feature spotlights: one screen of the app beside a few plain words, alternating sides. */
+    .spots { display: grid; gap: 5rem; }
+    .spot { gap: 2rem; align-items: center; }
+    @media (min-width: 860px) {
+      .spot { grid-template-columns: 15rem minmax(0, 1fr); gap: 4.5rem; padding-inline: 2rem; }
+      .spot:nth-child(even) { grid-template-columns: minmax(0, 1fr) 15rem; }
+      .spot:nth-child(even) .phone { order: 2; }
+      .spot:nth-child(even) .spot-copy { justify-self: end; }
     }
-    .formula span { color: var(--muted); }
-    .booklet {
-      background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden;
-      box-shadow: 0 1px 2px rgb(var(--shadow) / .05), 0 20px 40px -28px rgb(var(--shadow) / .35); min-width: 0;
-    }
-    .booklet-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem; padding: 1.5rem; border-bottom: 1px solid var(--rule); }
-    .stat { display: grid; gap: .2rem; }
-    .stat dt { font-size: .8125rem; color: var(--muted); }
-    .stat dd { margin: 0; font: 700 1.5rem/1.2 var(--display); font-variant-numeric: tabular-nums lining-nums; }
-    .stat dd.big { font-size: 2.25rem; }
-    .booklet dl { display: flex; flex-wrap: wrap; gap: 1.25rem 2rem; margin: 0; }
-    .table-scroll { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .9375rem; }
-    caption { text-align: left; padding: 1rem 1.5rem .25rem; font: 600 .8125rem/1.2 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-    th, td { padding: .85rem 1.5rem; text-align: left; border-bottom: 1px solid var(--rule); white-space: nowrap; }
-    th { font-weight: 600; font-size: .8125rem; color: var(--muted); }
-    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-    tbody tr:last-child td { border-bottom: 0; }
-    .ssd { font-family: var(--mono); font-size: .8125rem; color: var(--muted); }
-    .vote { display: inline-grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 2px solid var(--ok); color: var(--ok); font-weight: 700; }
-    .pending { display: inline-block; font-size: .8125rem; padding: .15rem .6rem; border-radius: 999px; background: var(--sheet-alt); color: var(--muted); }
-    .sample-note { padding: .75rem 1.5rem; font-size: .8125rem; color: var(--muted); background: var(--sheet-alt); border-top: 1px solid var(--rule); }
+    .spot .phone { width: min(15rem, 62vw); margin-inline: auto; }
+    .spot-copy { display: grid; gap: 1rem; min-width: 0; max-width: 34rem; }
+    .spot-copy h3 { font: 700 var(--step-3)/1.2 var(--display); letter-spacing: -.01em; }
+    .spot-copy p { color: var(--muted); font-size: var(--step-1); }
+    .ticks { list-style: none; margin: .25rem 0 0; padding: 0; display: grid; gap: .5rem; }
+    .ticks li { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr); gap: .5rem; align-items: start; }
+    .ticks svg { width: 20px; height: 20px; margin-top: .2rem; color: var(--ink); }
+    .spot-copy .big-number { display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; font: 700 var(--step-4)/1 var(--display); font-variant-numeric: tabular-nums lining-nums; }
+    .spot-copy .big-number small { font: 500 1rem/1.4 var(--body); color: var(--muted); }
 
-    /* What it does / what it never does: a two-column notebook list, not a card grid. */
-    .ledger { display: grid; gap: 3rem; }
-    @media (min-width: 860px) { .ledger { grid-template-columns: 1.4fr 1fr; gap: 4rem; } }
-    .ledger h3 { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.25rem; }
-    .ledger ul { list-style: none; margin: 0; padding: 0; display: grid; }
-    .ledger li { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: .75rem; padding-block: 1rem; border-top: 1px solid var(--rule); }
-    .ledger li:last-child { border-bottom: 1px solid var(--rule); }
-    .ledger li svg { width: 22px; height: 22px; margin-top: .15rem; color: var(--ink); }
-    .ledger .never li svg { color: var(--no); }
-    .ledger strong { display: block; font-weight: 600; color: var(--graphite); }
-    .ledger li p { color: var(--muted); font-size: .9375rem; }
-    .never { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1.75rem; align-self: start; }
-    .never > p { color: var(--muted); font-size: .9375rem; margin-bottom: 1rem; }
+    /* Everything else, in a quiet grid without boxes. */
+    .more-wrap { border-top: 1px solid var(--rule); margin-top: 5.5rem; padding-top: 4rem; }
+    .more { gap: 2.25rem 3rem; list-style: none; margin: 2rem 0 0; padding: 0; }
+    @media (min-width: 640px) { .more { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 960px) { .more { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .more li { display: grid; gap: .5rem; align-content: start; }
+    .more .ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: var(--ink-soft); color: var(--ink); }
+    .more .ico svg { width: 22px; height: 22px; }
+    .more p { color: var(--muted); }
 
-    /* Universities strip */
+    /* Universities */
     .unis { border-block: 1px solid var(--rule); background: var(--sheet); }
-    .unis .wrap { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 1rem 2rem; padding-block: 2rem; }
-    .uni-list { display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; list-style: none; margin: 0; padding: 0; font: 500 var(--step-2)/1.3 var(--display); }
-    .unis p { color: var(--muted); font-size: .875rem; max-width: 26rem; }
+    .unis .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-block: 2rem; }
+    .uni-list { display: flex; flex-wrap: wrap; gap: .5rem 1.75rem; list-style: none; margin: .5rem 0 0; padding: 0; font: 500 var(--step-2)/1.3 var(--display); }
+    .unis p { color: var(--muted); max-width: 28rem; }
 
-    /* Security: dark band with the real data path. */
+    /* Privacy: dark band, three plain promises and the one picture that explains them. */
     .night { background: var(--night); color: var(--night-text); }
     .night h2, .night h3 { color: #F8FAFC; }
-    .night .eyebrow, .night .lede { color: #94A3B8; }
-    .path {
-      display: grid; gap: 1rem; align-items: center; margin-block: 3rem; grid-template-columns: minmax(0, 1fr);
-    }
-    @media (min-width: 860px) { .path { grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1fr) 9rem minmax(0, 1fr); } }
-    .node { border: 1px solid var(--night-line); border-radius: var(--radius); padding: 1.25rem; background: rgb(255 255 255 / .03); display: grid; gap: .4rem; min-width: 0; }
-    .node h3 { font-size: var(--step-1); font-family: var(--body); font-weight: 600; }
-    .node p { font-size: .875rem; color: #94A3B8; }
-    .node.ghost { border-style: dashed; opacity: .75; }
-    .node.ghost h3 { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: #FCA5A5; }
-    .link { display: grid; justify-items: center; gap: .3rem; font-family: var(--mono); font-size: .75rem; color: #94A3B8; text-align: center; }
-    .link .line { width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #A5B4FC, transparent); }
-    .link.cut .line { background: repeating-linear-gradient(90deg, #FCA5A5 0 6px, transparent 6px 12px); }
-    @media (max-width: 859px) { .link .line { width: 2px; height: 28px; background: linear-gradient(transparent, #A5B4FC, transparent); } .link.cut .line { background: repeating-linear-gradient(#FCA5A5 0 6px, transparent 6px 12px); } }
-    .guarantees { display: grid; gap: 0 3rem; list-style: none; margin: 0; padding: 0; }
-    @media (min-width: 760px) { .guarantees { grid-template-columns: 1fr 1fr; } }
-    .guarantees li { padding-block: 1.25rem; border-top: 1px solid var(--night-line); display: grid; gap: .35rem; }
-    .guarantees p { font-size: .9375rem; }
-    .guarantees code { color: #E0E7FF; }
+    .night .eyebrow, .night .lede { color: var(--night-muted); }
+    .privacy-grid { gap: 3rem; align-items: center; }
+    @media (min-width: 900px) { .privacy-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 5rem; } }
+    .promises { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: 1.5rem; }
+    .promises li { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: .75rem; }
+    .promises svg { width: 24px; height: 24px; color: #FCD34D; margin-top: .1rem; }
+    .promises p { color: var(--night-muted); }
+    .flow { display: grid; gap: .75rem; justify-items: stretch; max-width: 24rem; width: 100%; margin-inline: auto; }
+    .flow .node { border: 1px solid var(--night-line); border-radius: var(--radius); padding: 1rem 1.25rem; background: rgb(255 255 255 / .04); display: flex; align-items: center; gap: .9rem; color: #F8FAFC; font-weight: 600; }
+    .flow .node svg { width: 26px; height: 26px; color: #A5B4FC; flex: none; }
+    .flow .node.ghost { border-style: dashed; color: var(--night-muted); }
+    .flow .node.ghost svg { color: #FCA5A5; }
+    .flow .node.ghost span { text-decoration: line-through; text-decoration-color: #FCA5A5; text-decoration-thickness: 2px; }
+    .flow .join { display: flex; align-items: center; gap: .6rem; padding-left: 1.4rem; font-size: .875rem; color: var(--night-muted); }
+    .flow .join::before { content: ""; width: 2px; height: 2.25rem; background: linear-gradient(#A5B4FC, #A5B4FC); }
+    .flow .join.cut::before { background: repeating-linear-gradient(#FCA5A5 0 5px, transparent 5px 10px); }
     .night a { color: #C7D2FE; }
     .night a:hover { color: #FFFFFF; }
     .night :focus-visible { outline-color: #FCD34D; }
 
     /* Getting started: a real sequence, so it is numbered. */
-    .steps { display: grid; gap: 1.5rem; list-style: none; margin: 0; padding: 0; counter-reset: step; }
+    .steps { gap: 1.5rem; list-style: none; margin: 0; padding: 0; counter-reset: step; }
     @media (min-width: 860px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     .steps li { counter-increment: step; display: grid; gap: .6rem; align-content: start; padding-top: 1.25rem; border-top: 2px solid var(--graphite); }
     .steps li::before { content: counter(step); font: 700 var(--step-3)/1 var(--display); color: var(--ink); }
+    .steps h3 { font: 600 var(--step-2)/1.3 var(--display); }
     .steps p { color: var(--muted); }
 
-    /* Download panel */
-    .download { display: grid; gap: 2rem; background: var(--sheet); border: 1px solid var(--rule); border-radius: 20px; padding: clamp(1.5rem, 4vw, 3rem); }
+    /* Download */
+    .download { gap: 2rem; background: var(--sheet); border: 1px solid var(--rule); border-radius: 20px; padding: clamp(1.5rem, 4vw, 3rem); }
     @media (min-width: 860px) { .download { grid-template-columns: 1fr 1fr; align-items: center; } }
     .download-copy { display: grid; gap: 1rem; min-width: 0; }
     .files { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; min-width: 0; }
-    .files li { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.25rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); }
-    .files .name { font-family: var(--mono); font-size: .875rem; overflow-wrap: anywhere; color: var(--graphite); }
-    .files .for { font-size: .875rem; color: var(--muted); }
-    .verify { font-size: .875rem; color: var(--muted); }
+    .files li { display: grid; gap: .15rem; padding: 1rem 1.25rem; border: 1px solid var(--rule); border-radius: 12px; background: var(--paper); }
+    .files strong { font-weight: 600; }
+    .files span { font-size: .875rem; color: var(--muted); }
+    .small { font-size: .875rem; color: var(--muted); }
 
     /* Footer */
     footer { border-top: 1px solid var(--rule); padding-block: 3rem calc(3rem + env(safe-area-inset-bottom, 0px)); }
-    .foot { display: grid; gap: 2rem; }
+    .foot { gap: 2rem; }
     @media (min-width: 860px) { .foot { grid-template-columns: 1fr 2fr; } }
     .foot ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; font-weight: 500; }
     .foot a { color: var(--graphite); text-decoration: none; }
@@ -303,7 +279,7 @@
 
   <div class="notice">
     <div class="wrap">
-      <p>Progetto <strong>indipendente e non ufficiale</strong>: non affiliato a Multiversity né ad alcuna università.</p>
+      <p>Progetto <strong>indipendente e non ufficiale</strong>: non è un’app di Multiversity né di un’università.</p>
     </div>
   </div>
 
@@ -314,9 +290,9 @@
         Studium
       </a>
       <ul class="nav-links">
-        <li class="hide-sm"><a href="#libretto">Libretto</a></li>
-        <li class="hide-sm"><a href="#sicurezza">Sicurezza</a></li>
-        <li class="hide-sm"><a href="https://github.com/minchiox/studium">GitHub</a></li>
+        <li class="hide-sm"><a href="#funzioni">Funzioni</a></li>
+        <li class="hide-sm"><a href="#inizia">Come iniziare</a></li>
+        <li class="hide-sm"><a href="#privacy">Privacy</a></li>
         <li><a class="btn btn-primary btn-sm" href="#scarica">Scarica</a></li>
       </ul>
     </nav>
@@ -327,100 +303,123 @@
     <section class="hero" aria-labelledby="titolo">
       <div class="wrap hero-grid">
         <div class="hero-copy">
-          <p class="eyebrow">App Android · Open source · Licenza MIT</p>
+          <p class="eyebrow">App gratuita per Android</p>
           <h1 id="titolo">Le tue lezioni, <span class="marked swipe">già sottolineate</span>.</h1>
-          <p class="tagline">Il client open-source definitivo per gli studenti Multiversity.</p>
-          <p class="lede">Videolezioni, trascrizioni con ricerca, dispense offline, libretto, esami e avvisi in un’app nativa. Il telefono parla solo con la tua università: nessun server di mezzo, nessuna telemetria.</p>
+          <p class="lede">Il client open-source definitivo per gli studenti Multiversity. Lezioni, appunti, esami e voti in un’unica app, pensata per chi studia nei ritagli di tempo.</p>
           <div class="cta-row">
             <a class="btn btn-primary" href="https://github.com/minchiox/studium/releases/latest">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-              Scarica l’APK stabile (GitHub Releases)
+              Scarica l’app
             </a>
-            <a class="btn btn-ghost" href="https://github.com/minchiox/studium">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
-              Codice sorgente
-            </a>
+            <a class="btn btn-ghost" href="#funzioni">Scopri cosa fa</a>
           </div>
           <ul class="facts">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Gratis, senza account</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Funziona offline</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Tema chiaro e scuro</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Gratis</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Senza pubblicità</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>Funziona anche offline</li>
           </ul>
         </div>
 
-        <figure class="phones" style="margin:0">
-          <div class="phone" data-screen="home" role="img" aria-label="Home: media ponderata 28,00, CFU e prossimi impegni"><div class="screen"></div></div>
-          <div class="phone" data-screen="lesson" role="img" aria-label="Trascrizione della lezione con la parola cercata evidenziata"><div class="screen"></div></div>
-          <div class="phone" data-screen="career" role="img" aria-label="Carriera: libretto con voti, CFU e base di laurea stimata"><div class="screen"></div></div>
-          <figcaption>Home, trascrizione con ricerca, carriera. Dati di un’università di prova.</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <!-- Libretto -->
-    <section id="libretto" class="section" aria-labelledby="libretto-titolo">
-      <div class="wrap libretto-grid">
-        <div class="libretto-copy">
-          <p class="eyebrow">Carriera</p>
-          <h2 id="libretto-titolo">Il libretto, con i conti già fatti</h2>
-          <p class="lede">Voti in trentesimi, CFU per anno, media aritmetica e ponderata. Studium calcola anche la base di laurea stimata, contando il 30 e lode come 30, e la confronta con la media pubblicata dalla piattaforma.</p>
-          <p class="formula">base = media ponderata × 110 / 30 <span>→ 28,00 × 110 / 30 = 102,67</span></p>
-          <p class="verify">Fa fede la segreteria: il calcolo è un aiuto per lo studio, non un documento ufficiale.</p>
-        </div>
-
-        <div class="booklet">
-          <div class="booklet-head">
-            <dl>
-              <div class="stat"><dt>Media ponderata</dt><dd class="big"><span class="marked">28,00</span></dd></div>
-              <div class="stat"><dt>Base di laurea</dt><dd>102,67<span class="mono" style="font-size:.9rem;color:var(--muted)">/110</span></dd></div>
-              <div class="stat"><dt>CFU</dt><dd>6 di 42</dd></div>
-            </dl>
-          </div>
-          <div class="table-scroll">
-            <table>
-              <caption>Primo anno</caption>
-              <thead>
-                <tr><th scope="col">Insegnamento</th><th scope="col">SSD</th><th scope="col" class="num">CFU</th><th scope="col" class="num">Voto</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Analisi dei dati</td><td class="ssd">SECS-S/01</td><td class="num">9</td><td class="num"><span class="pending">Da sostenere</span></td></tr>
-                <tr><td>Diritto dell’informatica</td><td class="ssd">IUS/17</td><td class="num">9</td><td class="num"><span class="pending">Da sostenere</span></td></tr>
-                <tr><td>Lingua inglese</td><td class="ssd">L-LIN/12</td><td class="num">6</td><td class="num"><span class="vote">28<span class="sr-only"> su 30</span></span></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="sample-note">Esempio dall’università di prova inclusa nel progetto: i tuoi dati restano sul tuo telefono.</p>
+        <div class="phones" aria-hidden="true">
+          <div class="phone" data-screen="home"><div class="screen"></div></div>
+          <div class="phone" data-screen="lesson"><div class="screen"></div></div>
+          <div class="phone" data-screen="career"><div class="screen"></div></div>
         </div>
       </div>
     </section>
 
-    <!-- Does / never does -->
-    <section id="funzioni" class="section" style="padding-top:0" aria-labelledby="funzioni-titolo">
+    <!-- Features -->
+    <section id="funzioni" class="section" aria-labelledby="funzioni-titolo">
       <div class="wrap">
         <div class="section-head">
-          <p class="eyebrow">Cosa trovi</p>
-          <h2 id="funzioni-titolo">Fatto per studiare. Non scrive nulla al posto tuo.</h2>
+          <p class="eyebrow">Cosa puoi fare</p>
+          <h2 id="funzioni-titolo">Tutto quello che ti serve per studiare, in tasca</h2>
+          <p class="lede">Apri l’app e trovi subito il punto in cui eri rimasto. Il resto è a un tocco.</p>
         </div>
-        <div class="ledger">
-          <div>
-            <h3>Cosa fa</h3>
-            <ul>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div><strong>Home “Da fare”</strong><p>Esiti da confermare, esame di oggi, prenotazioni in chiusura, lezione da riprendere, in ordine di urgenza.</p></div></li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5"/></svg><div><strong>Trascrizioni con ricerca</strong><p>Il testo di ogni lezione, ricavato dai sottotitoli, con evidenziatore e ricerca in tutto il corso, anche offline.</p></div></li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg><div><strong>Dispense offline</strong><p>Scarica dispense e trascrizioni di un intero corso con un tocco e studia anche senza rete.</p></div></li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><div><strong>Esami, agenda e avvisi</strong><p>Prenotazioni, appelli con la scadenza per prenotare, lezioni live e comunicazioni dell’ateneo, con promemoria.</p></div></li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg><div><strong>Quiz dalle lezioni</strong><p>Domande create sul telefono dalle trascrizioni, con spiegazione e ripasso a intervalli. Gratis e offline.</p></div></li>
-            </ul>
-          </div>
-          <div class="never">
-            <h3>Cosa non fa, per scelta</h3>
-            <p>Le azioni che contano si fanno sulla piattaforma ufficiale, che si apre dentro l’app.</p>
-            <ul>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><div><strong>Non registra la frequenza</strong><p>La registra solo il player ufficiale, mentre guardi.</p></div></li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><div><strong>Non prenota esami</strong><p>Apre la pagina di prenotazione dell’ateneo.</p></div></li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><div><strong>Non compila test</strong><p>Né segna lezioni come viste.</p></div></li>
-            </ul>
-          </div>
+
+        <div class="spots">
+          <article class="spot">
+            <div class="phone" data-screen="home" role="img" aria-label="La schermata iniziale con la media, i CFU e i prossimi impegni"><div class="screen"></div></div>
+            <div class="spot-copy">
+              <h3>Sai sempre cosa fare oggi</h3>
+              <p>La schermata iniziale mette in fila le cose importanti, dalla più urgente.</p>
+              <ul class="ticks">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>Un esame da confermare o una prenotazione che sta per chiudere</span></li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>La prossima lezione dal vivo e l’appello in arrivo</span></li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>La lezione che avevi lasciato a metà</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="spot">
+            <div class="phone" data-screen="course" role="img" aria-label="Un corso con le lezioni viste e il pulsante per continuare"><div class="screen"></div></div>
+            <div class="spot-copy">
+              <h3>Riprendi da dove eri rimasto</h3>
+              <p>Per ogni corso vedi quante lezioni hai guardato e quanto tempo ti manca. Un tocco e riparti dalla lezione giusta.</p>
+              <ul class="ticks">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>Le lezioni si guardano nel player della tua università, quindi la frequenza conta come sempre</span></li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>Scarichi tutte le dispense del corso in una volta, per studiarle anche senza internet</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="spot">
+            <div class="phone" data-screen="lesson" role="img" aria-label="Il testo di una lezione con la parola cercata evidenziata"><div class="screen"></div></div>
+            <div class="spot-copy">
+              <h3>Trovi una parola in tutte le lezioni</h3>
+              <p>Ogni videolezione diventa anche testo da leggere. Cerchi un termine e Studium ti porta al punto esatto in cui il docente ne parla, evidenziato.</p>
+              <ul class="ticks">
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>Comodo per ripassare in treno o quando non puoi ascoltare l’audio</span></li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span>Dal testo nascono anche domande per metterti alla prova</span></li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="spot">
+            <div class="phone" data-screen="career" role="img" aria-label="Il libretto con la media, la base di laurea e gli esami"><div class="screen"></div></div>
+            <div class="spot-copy">
+              <h3>Il libretto, sempre a portata di mano</h3>
+              <p>Voti, crediti e media, anno per anno. E un’idea del voto con cui partirai alla laurea.</p>
+              <p class="big-number"><span class="marked">28,00</span><small>media ponderata<br>base di laurea 102,67 su 110</small></p>
+              <p class="small">Numeri di esempio. Fa sempre fede la segreteria.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="more-wrap">
+          <h3 class="eyebrow" style="font-family:var(--body)">E poi</h3>
+          <ul class="more">
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></span>
+              <h3>Dispense sempre con te</h3>
+              <p>Le scarichi una volta e le apri quando vuoi, anche in aereo.</p>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span>
+              <h3>Promemoria per gli esami</h3>
+              <p>Ti avvisa prima che si chiudano le prenotazioni e il giorno dell’esame.</p>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <h3>Agenda in un colpo d’occhio</h3>
+              <p>Esami prenotati, appelli aperti e lezioni dal vivo nello stesso calendario.</p>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg></span>
+              <h3>Quiz per ripassare</h3>
+              <p>Domande sulle lezioni che hai visto. Quelle sbagliate tornano finché non le sai.</p>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></span>
+              <h3>Avvisi dell’università</h3>
+              <p>Le comunicazioni dell’ateneo con gli allegati, senza aprire il sito.</p>
+            </li>
+            <li>
+              <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span>
+              <h3>Chiara di giorno, scura la sera</h3>
+              <p>Segue il tema del telefono, per studiare senza affaticare gli occhi.</p>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
@@ -429,54 +428,47 @@
     <section class="unis" aria-labelledby="atenei-titolo">
       <div class="wrap">
         <div>
-          <p class="eyebrow" id="atenei-titolo">Multi-ateneo</p>
+          <p class="eyebrow" id="atenei-titolo">Per gli studenti di</p>
           <ul class="uni-list">
             <li>Pegaso</li>
             <li>Mercatorum</li>
             <li>San Raffaele</li>
           </ul>
         </div>
-        <p>Pensato per le università che usano la stessa piattaforma studenti. Verificato end-to-end su un ateneo; se la tua piattaforma non è compatibile, l’app te lo dice invece di mostrare dati sbagliati.</p>
+        <p>Funziona con le università che usano la stessa area studenti. Se la tua non è compatibile, l’app te lo dice subito.</p>
       </div>
     </section>
 
-    <!-- Security -->
-    <section id="sicurezza" class="night section" aria-labelledby="sicurezza-titolo">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Sicurezza e trasparenza</p>
-          <h2 id="sicurezza-titolo">Tra il tuo telefono e l’università non c’è nessun altro</h2>
-          <p class="lede">Le garanzie stanno nel codice, che puoi leggere. Ecco dove passano i tuoi dati.</p>
+    <!-- Privacy -->
+    <section id="privacy" class="night section" aria-labelledby="privacy-titolo">
+      <div class="wrap privacy-grid">
+        <div>
+          <p class="eyebrow">Privacy</p>
+          <h2 id="privacy-titolo">I tuoi dati restano sul tuo telefono</h2>
+          <ul class="promises">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              <div><h3>Entri dalla pagina della tua università</h3><p>La password la scrivi lì, come sempre. Studium non la vede e non la conserva.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+              <div><h3>Niente account, pubblicità o tracciamento</h3><p>Non c’è nessun server di Studium. L’app parla solo con la tua università.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+              <div><h3>Non fa nulla al posto tuo</h3><p>Non segna presenze e non prenota esami. Quando serve, apre la pagina ufficiale e decidi tu.</p></div>
+            </li>
+          </ul>
+          <p style="margin-top:2rem"><a href="https://github.com/minchiox/studium/blob/main/PRIVACY_POLICY.md">Leggi l’informativa sulla privacy</a></p>
         </div>
 
-        <div class="path" role="img" aria-label="Percorso dei dati: il telefono con Studium comunica direttamente con i server dell'università. Il server di Studium non esiste.">
-          <div class="node">
-            <h3>Il tuo telefono</h3>
-            <p>Studium, con il token di accesso cifrato nel Keystore di Android. Cache e dispense nella memoria privata dell’app.</p>
-          </div>
-          <div class="link"><span class="line"></span><span>HTTPS diretto</span></div>
-          <div class="node">
-            <h3>La tua università</h3>
-            <p>Login sulla pagina ufficiale, API studenti in sola lettura, player e prenotazioni ufficiali.</p>
-          </div>
-          <div class="link cut"><span class="line"></span><span>nessuna connessione</span></div>
-          <div class="node ghost">
-            <h3>Server di Studium</h3>
-            <p>Non esiste: niente account, niente telemetria, niente copie dei tuoi dati.</p>
-          </div>
+        <div class="flow" role="img" aria-label="Il tuo telefono comunica solo con la tua università. Non esiste un server di Studium.">
+          <div class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span>Il tuo telefono</span></div>
+          <div class="join">direttamente</div>
+          <div class="node"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg><span>La tua università</span></div>
+          <div class="join cut">nessun altro</div>
+          <div class="node ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span>Server di Studium</span></div>
         </div>
-
-        <ul class="guarantees">
-          <li><h3>La password resta tua</h3><p>Accedi sulla pagina ufficiale dell’ateneo, aperta nell’app. Studium non la vede, non la salva e non la invia.</p></li>
-          <li><h3>Solo lettura, garantito</h3><p>Una guardia nel codice (<code>guard.ts</code>) blocca ogni scrittura verso l’API studenti e ogni chiamata di tracciamento della frequenza.</p></li>
-          <li><h3>Pagine confinate all’ateneo</h3><p>Login, player e pagine ufficiali aprono solo gli indirizzi dell’università. I link esterni si aprono nel browser, senza la tua sessione.</p></li>
-          <li><h3>Configurazioni verificate</h3><p>Una configurazione condivisa da un compagno viene controllata e i suoi domini ti vengono mostrati prima di usarla.</p></li>
-        </ul>
-        <p style="margin-top:2rem">
-          <a href="https://github.com/minchiox/studium/blob/main/PRIVACY_POLICY.md">Privacy Policy</a>
-          <span aria-hidden="true"> · </span>
-          <a href="https://github.com/minchiox/studium/blob/main/SECURITY.md">Segnala una vulnerabilità</a>
-        </p>
       </div>
     </section>
 
@@ -484,13 +476,13 @@
     <section id="inizia" class="section" aria-labelledby="inizia-titolo">
       <div class="wrap">
         <div class="section-head">
-          <p class="eyebrow">In tre passi</p>
+          <p class="eyebrow">In due minuti</p>
           <h2 id="inizia-titolo">Come iniziare</h2>
         </div>
         <ol class="steps">
-          <li><h3>Scarica l’APK</h3><p>Dal telefono, dalla pagina delle release su GitHub. Android ti chiede di consentire l’installazione da questa fonte.</p></li>
-          <li><h3>Collega la tua università</h3><p>Incolla l’indirizzo che apri nel browser per entrare nell’area studenti. Studium riconosce la piattaforma da solo.</p></li>
-          <li><h3>Accedi come sempre</h3><p>Sulla pagina ufficiale dell’ateneo. Da lì in poi corsi, lezioni e libretto sono nell’app.</p></li>
+          <li><h3>Scarica l’app</h3><p>Dal telefono, tocca “Scarica l’app” e apri il file. Android ti chiederà il permesso di installarla.</p></li>
+          <li><h3>Scegli la tua università</h3><p>Incolla l’indirizzo che usi per entrare nell’area studenti. Al resto pensa Studium.</p></li>
+          <li><h3>Accedi come sempre</h3><p>Con le tue solite credenziali, sulla pagina dell’università. Fatto: trovi corsi, lezioni e libretto.</p></li>
         </ol>
       </div>
     </section>
@@ -501,18 +493,19 @@
         <div class="download">
           <div class="download-copy">
             <p class="eyebrow">Download</p>
-            <h2 id="scarica-titolo">Scegli l’APK per il tuo telefono</h2>
-            <p class="verify">Ogni release include <code>SHA256SUMS.txt</code> e l’impronta del certificato di firma. Verifica con <code>sha256sum -c SHA256SUMS.txt</code>.</p>
+            <h2 id="scarica-titolo">Pronto a provarla?</h2>
+            <p class="lede">È gratis e lo resterà. Se hai dubbi su quale file scegliere, prendi il primo: va bene per quasi tutti i telefoni.</p>
             <div class="cta-row">
               <a class="btn btn-primary" href="https://github.com/minchiox/studium/releases/latest">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-                Vai all’ultima release
+                Scarica l’ultima versione
               </a>
             </div>
+            <p class="small">Il codice è pubblico su <a href="https://github.com/minchiox/studium">GitHub</a>, con tutta la documentazione per chi vuole guardarci dentro.</p>
           </div>
           <ul class="files">
-            <li><span class="name">studium-&lt;versione&gt;-arm64-v8a.apk</span><span class="for">Quasi tutti i telefoni (64 bit)</span></li>
-            <li><span class="name">studium-&lt;versione&gt;-armeabi-v7a.apk</span><span class="for">Telefoni più vecchi (32 bit)</span></li>
+            <li><strong>Telefoni recenti</strong><span>il file che finisce con “arm64-v8a”</span></li>
+            <li><strong>Telefoni di qualche anno fa</strong><span>il file che finisce con “armeabi-v7a”</span></li>
           </ul>
         </div>
       </div>
@@ -523,16 +516,16 @@
     <div class="wrap foot">
       <nav aria-label="Link del progetto">
         <ul>
-          <li><a href="https://github.com/minchiox/studium">Repository GitHub</a></li>
-          <li><a href="https://github.com/minchiox/studium/releases">Release</a></li>
+          <li><a href="https://github.com/minchiox/studium">Codice su GitHub</a></li>
+          <li><a href="https://github.com/minchiox/studium/releases">Tutte le versioni</a></li>
+          <li><a href="https://github.com/minchiox/studium/blob/main/PRIVACY_POLICY.md">Privacy</a></li>
           <li><a href="https://github.com/minchiox/studium/blob/main/LICENSE">Licenza MIT</a></li>
-          <li><a href="https://github.com/minchiox/studium/blob/main/PRIVACY_POLICY.md">Privacy Policy</a></li>
-          <li><a href="https://github.com/minchiox/studium/blob/main/SECURITY.md">Sicurezza</a></li>
+          <li><a href="https://github.com/minchiox/studium/blob/main/SECURITY.md">Segnala un problema di sicurezza</a></li>
         </ul>
       </nav>
       <div class="legal">
-        <p><strong>Avviso legale.</strong> Studium è un progetto indipendente e non ufficiale. Non è affiliato, approvato né sostenuto da Multiversity, dall’Università Telematica Pegaso, dall’Universitas Mercatorum, dall’Università Telematica San Raffaele Roma o da altri atenei. I nomi e i marchi citati appartengono ai rispettivi titolari e sono usati solo per descrivere la compatibilità.</p>
-        <p>Usa il tuo account personale nel rispetto del regolamento del tuo ateneo. Dispense e lezioni appartengono ai rispettivi autori: sono per lo studio personale e non vanno ridistribuite.</p>
+        <p><strong>Avviso legale.</strong> Studium è un progetto indipendente e non ufficiale. Non è affiliato, approvato né sostenuto da Multiversity, dall’Università Telematica Pegaso, dall’Universitas Mercatorum, dall’Università Telematica San Raffaele Roma o da altri atenei. I nomi e i marchi citati appartengono ai rispettivi titolari e sono usati solo per indicare la compatibilità.</p>
+        <p>Usa il tuo account personale e rispetta il regolamento del tuo ateneo. Dispense e lezioni appartengono ai loro autori: sono per il tuo studio, non vanno condivise.</p>
       </div>
     </div>
   </footer>

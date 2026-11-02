@@ -50,7 +50,14 @@ describe('guard — the read-only guarantee', () => {
     expect(isHostAllowed(PROFILE, 'https://example.edu.evil.com/')).toBe(false);
     expect(isHostAllowed(PROFILE, 'https://evilexample.edu/')).toBe(false);
     expect(isHostAllowed(PROFILE, 'http://media.example.edu/')).toBe(false);
-    expect(isHostAllowed({ ...PROFILE, allowInsecureHttp: true }, 'http://media.example.edu/')).toBe(true);
+    // Plain HTTP only towards the development machine (mock LMS), even with allowInsecureHttp.
+    expect(isHostAllowed({ ...PROFILE, allowInsecureHttp: true }, 'http://media.example.edu/')).toBe(false);
+    expect(
+      isHostAllowed(
+        { ...PROFILE, allowedHostSuffixes: ['localhost'], allowInsecureHttp: true },
+        'http://localhost:4010/',
+      ),
+    ).toBe(true);
     expect(() => assertHostAllowed(PROFILE, 'https://evil.com')).toThrow(/Host not allowed/);
   });
 });

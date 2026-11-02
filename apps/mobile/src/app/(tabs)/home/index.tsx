@@ -10,7 +10,7 @@ import { formatAverage, formatDay, formatTime, plural, relativeDay } from '@/lib
 import { KIND_LABEL } from '@/lib/labels';
 import { loadBank } from '@/lib/quiz';
 import { syncReminders } from '@/lib/reminders';
-import { space, type, usePalette } from '@/lib/theme';
+import { elevation, space, type, usePalette } from '@/lib/theme';
 import { buildTodo, type TodoItem } from '@/lib/todo';
 
 export default function Home() {
@@ -66,7 +66,9 @@ export default function Home() {
               <MaterialCommunityIcons name="bell-outline" size={24} color={c.text} />
               {unread ? (
                 <View style={[styles.badge, { backgroundColor: c.danger }]}>
-                  <Text style={[type.caption, styles.badgeText]}>{unread > 99 ? '99+' : unread}</Text>
+                  <Text style={[type.caption, styles.badgeText, { color: c.surface }]}>
+                    {unread > 99 ? '99+' : unread}
+                  </Text>
                 </View>
               ) : null}
             </Pressable>
@@ -94,7 +96,7 @@ export default function Home() {
         {todo.length ? <Todo items={todo} /> : null}
 
         <View
-          style={[styles.figures, { backgroundColor: c.surface, borderColor: c.border }]}
+          style={[styles.figures, { backgroundColor: c.surface, borderColor: c.border }, elevation(c, 1)]}
           testID="home-figures"
         >
           <View style={{ gap: space.xs }}>
@@ -225,14 +227,14 @@ function Todo({ items }: { items: TodoItem[] }) {
 }
 
 const styles = StyleSheet.create({
-  figures: { borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.xl },
+  figures: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.xl },
   spread: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   notice: { borderRadius: 12, padding: space.md, flexDirection: 'row' },
   focus: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 2,
     padding: space.lg,
   },
@@ -248,5 +250,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { color: '#FFFFFF', fontSize: 11, lineHeight: 14, fontFamily: 'Figtree_700Bold' },
+  badgeText: { fontSize: 11, lineHeight: 14, fontFamily: 'Figtree_700Bold' },
 });

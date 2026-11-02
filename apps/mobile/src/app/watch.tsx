@@ -1,10 +1,13 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { isHostAllowed } from '@studium/core';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef } from 'react';
 import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { Txt } from '@/components/ui';
+import { Empty, Txt } from '@/components/ui';
+import { useProfile } from '@/lib/profile';
 import { space, usePalette } from '@/lib/theme';
+import { navigationGuard } from '@/lib/webGuard';
 
 const PAUSE_ALL = `document.querySelectorAll('video,audio').forEach(function (m) { try { m.pause(); } catch (e) {} }); true;`;
 
@@ -15,7 +18,10 @@ const PAUSE_ALL = `document.querySelectorAll('video,audio').forEach(function (m)
  */
 export default function Watch() {
   const c = usePalette();
+  const profile = useProfile();
   const { url } = useLocalSearchParams<{ url: string; title?: string }>();
+  // Every route is reachable by deep link (studium://watch?url=…): the address is untrusted input.
+  const allowed = !!url && isHostAllowed(profile, url);
   // The typings default P to `undefined`, which collapses the props to `never`: pin it to `object`.
   const web = useRef<WebView<object>>(null);
 
@@ -37,23 +43,33 @@ export default function Watch() {
           Player ufficiale della piattaforma: la visione viene registrata come sul sito.
         </Txt>
       </View>
-      <WebView
-        ref={web}
-        testID="watch-webview"
-        source={{ uri: url }}
-        javaScriptEnabled
-        domStorageEnabled
-        thirdPartyCookiesEnabled
-        allowsFullscreenVideo
-        mediaPlaybackRequiresUserAction
-        startInLoadingState
-        renderLoading={() => (
-          <View style={styles.loading}>
-            <ActivityIndicator color={c.ink} size="large" />
-          </View>
-        )}
-        style={{ flex: 1 }}
-      />
+      {allowed ? (
+        <WebView
+          ref={web}
+          testID="watch-webview"
+          source={{ uri: url }}
+          onShouldStartLoadWithRequest={navigationGuard(profile)}
+          setSupportMultipleWindows={false}
+          javaScriptEnabled
+          domStorageEnabled
+          thirdPartyCookiesEnabled
+          allowsFullscreenVideo
+          mediaPlaybackRequiresUserAction
+          startInLoadingState
+          renderLoading={() => (
+            <View style={styles.loading}>
+              <ActivityIndicator color={c.ink} size="large" />
+            </View>
+          )}
+          style={{ flex: 1 }}
+        />
+      ) : (
+        <Empty
+          icon="link-variant-off"
+          title="Indirizzo non consentito"
+          body="Studium apre nel player solo le pagine della tua università."
+        />
+      )}
     </View>
   );
 }

@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Group, Marked, Pill, Progress, QueryView, Row, Screen, Section, Txt } from '@/components/ui';
 import { useCareer } from '@/lib/api';
 import { formatAverage, formatDate } from '@/lib/format';
-import { space, usePalette } from '@/lib/theme';
+import { elevation, space, usePalette } from '@/lib/theme';
 
 const YEAR = ['Primo anno', 'Secondo anno', 'Terzo anno', 'Quarto anno', 'Quinto anno', 'Sesto anno'];
 
@@ -17,7 +17,13 @@ export default function CareerScreen() {
           const s = careerStats(career);
           return (
             <>
-              <View style={[styles.summary, { backgroundColor: c.surface, borderColor: c.border }]}>
+              <View
+                style={[
+                  styles.summary,
+                  { backgroundColor: c.surface, borderColor: c.border },
+                  elevation(c, 1),
+                ]}
+              >
                 <View style={{ gap: space.xs }}>
                   <Txt variant="small" color="textMuted">
                     Media ponderata
@@ -101,7 +107,7 @@ function Figure({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  summary: { borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.lg },
+  summary: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.lg },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   // A grade sits in a circle, like the stamp in a paper libretto.
   vote: {

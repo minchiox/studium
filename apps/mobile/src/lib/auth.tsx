@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { getProfile, useProfileState } from './profile';
 import { clearToken, loadToken, saveToken } from './session';
+import { navigationGuard } from './webGuard';
 
 /**
  * Script injected in the platform's web app. It only *reads* the access-token cookie that the web app
@@ -191,6 +192,9 @@ export function AuthProvider({ children, onSignedOut }: { children: ReactNode; o
               RENEW_TIMEOUT_MS,
             )}
             onMessage={onMessage}
+            // Renewal happens on the web app's own hosts; a redirect elsewhere is cancelled and times out.
+            onShouldStartLoadWithRequest={navigationGuard(getProfile(), 'silent')}
+            setSupportMultipleWindows={false}
             onError={(): void => {
               void finishRenewal(renewal, { failed: true });
             }}

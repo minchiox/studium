@@ -1,14 +1,9 @@
 // Building a platform profile from what the student's own browser session reveals: the address they typed,
 // the API calls the web app makes, and the cookie holding the access token. Pure functions, unit-tested.
+// `registrableDomain` knows multi-label public suffixes ("lms.uni.ac.uk" → "uni.ac.uk", never "ac.uk").
+import { registrableDomain } from './domains.ts';
 import { jwtExpiry, vttUrl } from './parse.ts';
 import { type PlatformProfile, parseProfile } from './profile.ts';
-
-/** "students.uni.example.edu" → "example.edu" (good enough for the hosts these platforms use). */
-export function registrableDomain(host: string): string {
-  const parts = host.toLowerCase().split('.').filter(Boolean);
-  if (parts.length <= 2 || /^\d+$/.test(parts[parts.length - 1] ?? '')) return parts.join('.');
-  return parts.slice(-2).join('.');
-}
 
 /** Accepts "uni.example.edu", "https://uni.example.edu/login" … and returns the origin with a trailing slash. */
 export function normalizeSiteUrl(input: string): string {

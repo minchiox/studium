@@ -1,4 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// AI features are off in this release (features.ts): the provider code stays tested with the flag forced on.
+// `features.test.ts` checks that it refuses to run with the shipped value.
+vi.mock('../src/features.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../src/features.ts')>()),
+  ENABLE_AI_FEATURES: true,
+  assertAiEnabled: () => undefined,
+}));
+
 import { buildLlmRequest, generateQuizWithLlm, LlmError, llmContext, parseLlmQuiz } from '../src/llm.ts';
 import {
   bankStats,

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { type PlatformProfile, parseProfile } from '@studium/core';
+import { type PlatformProfile, ProfileValidationError, parseProfile } from '@studium/core';
 import Constants from 'expo-constants';
 import { createContext, type ReactNode, use, useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -59,10 +59,25 @@ export function parseImported(text: string): PlatformProfile {
   }
   try {
     return parseProfile(json);
-  } catch {
+  } catch (e) {
+    // A well-formed profile pointing outside its university: keep the details, the setup screen lists them.
+    if (e instanceof ProfileValidationError) throw e;
     throw new Error('La configurazione è incompleta o non riconosciuta.');
   }
 }
+
+const REASONS: Record<string, string> = {
+  'not a valid host name': 'non è un nome di dominio valido',
+  'public suffix: it would trust domains owned by anyone':
+    'dominio pubblico: autorizzerebbe siti di chiunque',
+  'not a valid URL': 'non è un indirizzo valido',
+  'must use https://': 'non usa una connessione protetta (https)',
+  'must not contain credentials': 'contiene credenziali nell’indirizzo',
+  'host outside the allowed domains': 'fuori dai domini dell’università',
+};
+
+/** A violation in words a student understands. */
+export const violationText = (reason: string): string => REASONS[reason] ?? reason;
 
 interface ProfileState {
   profile: PlatformProfile | null;

@@ -1,5 +1,6 @@
 import {
   fetchTranscripts,
+  isHostAllowed,
   type Lesson,
   mapPool,
   renderLessonMarkdown,
@@ -10,6 +11,7 @@ import { Directory, File, Paths } from 'expo-file-system';
 import * as IntentLauncher from 'expo-intent-launcher';
 import * as Sharing from 'expo-sharing';
 import { api } from './api';
+import { getProfile } from './profile';
 
 // Offline library on the device:
 //   studium/<COURSE>/dispense/<NN> - <title>.pdf
@@ -55,6 +57,9 @@ export async function getHandout(code: string, lesson: Lesson): Promise<File> {
   const f = handoutFile(code, lesson);
   if (f.exists && f.size > 0) return f;
   if (!lesson.dispensaUrl) throw new Error('Questa lezione non ha una dispensa.');
+  // The URL comes from the API: download only from the university's own hosts.
+  if (!isHostAllowed(getProfile(), lesson.dispensaUrl))
+    throw new Error('La dispensa è su un indirizzo che non appartiene alla tua università.');
   return download(lesson.dispensaUrl, f);
 }
 

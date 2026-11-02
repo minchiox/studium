@@ -1,13 +1,33 @@
-import { LLM_PRESETS } from '@studium/core';
+import { ENABLE_AI_FEATURES, LLM_PRESETS } from '@studium/core';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { Button, Screen, Section, Txt } from '@/components/ui';
+import { Button, Empty, Screen, Section, Txt } from '@/components/ui';
 import { loadAi, removeAi, saveAi } from '@/lib/quiz';
 import { fonts, radius, space, usePalette } from '@/lib/theme';
 
-/** Optional AI provider for quizzes: any OpenAI-compatible API, with the student's own key. */
+/**
+ * Optional AI provider for quizzes. Behind `ENABLE_AI_FEATURES`: while it is off, the route still exists
+ * (deep links, old navigation state) but only explains that the feature is unavailable.
+ */
 export default function AiSettings() {
+  if (!ENABLE_AI_FEATURES) {
+    return (
+      <Screen testID="ai-settings-disabled">
+        <Empty
+          icon="creation-outline"
+          title="Quiz con l’IA non disponibili"
+          body="In questa versione i quiz con un provider IA sono temporaneamente disattivati. I quiz di base restano gratuiti e funzionano offline."
+          action={<Button kind="secondary" label="Torna indietro" onPress={() => router.back()} />}
+        />
+      </Screen>
+    );
+  }
+  return <AiSettingsForm />;
+}
+
+/** Any OpenAI-compatible API, with the student's own key. */
+function AiSettingsForm() {
   const c = usePalette();
   const [preset, setPreset] = useState<string>('groq');
   const [baseUrl, setBaseUrl] = useState<string>(LLM_PRESETS[0].baseUrl);

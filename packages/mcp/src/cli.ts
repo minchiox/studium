@@ -8,6 +8,7 @@ import {
   careerStats,
   computeProgress,
   createLogger,
+  ENABLE_AI_FEATURES,
   formatDuration,
   formatError,
   formatVote,
@@ -87,6 +88,14 @@ async function main(argv: string[]): Promise<number> {
 
   switch (command) {
     case 'serve':
+      // The MCP server exists to serve AI assistants: off while AI features are disabled (core/features.ts).
+      // The other commands (login, courses, sync…) do not involve AI and keep working.
+      if (!ENABLE_AI_FEATURES) {
+        process.stderr.write(
+          'studium-mcp: the MCP server is temporarily disabled in this version (ENABLE_AI_FEATURES = false).\n',
+        );
+        return 2;
+      }
       return serve(config, log);
     case 'login':
       return login(config, log);

@@ -1,6 +1,6 @@
 # ADR 0003 — Funzioni IA: motore locale + provider LLM a scelta
 
-**Stato:** proposto (fase successiva all'MVP)
+**Stato:** accettato (v1.2.0: quiz locali, banca con ripasso Leitner su AsyncStorage, provider compatibile OpenAI; i riassunti restano da fare)
 
 ## Contesto
 Lo studente vuole riassunti, quiz e una banca esercitazioni. Un backend con una nostra chiave significherebbe costi a nostro carico, gestione degli abusi e contenuti didattici altrui sui nostri server.

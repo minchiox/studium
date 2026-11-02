@@ -30,6 +30,8 @@ claude mcp add studium -s user \
 | `course_progress` | video mancanti e test di autovalutazione da fare |
 | `get_career` | libretto con voti, medie e base di laurea stimata |
 | `list_notices`, `get_agenda` | avvisi; esami prenotati, appelli e lezioni live |
+| `get_exams` | prenotazioni, appelli prenotabili con la finestra di prenotazione, esiti da confermare, link alla pagina ufficiale (non prenota mai) |
+| `practice_quiz` | quiz creato in locale dalla trascrizione di una lezione, con risposte e spiegazioni |
 | `sync_course` | scarica dispense e trascrizioni nel workspace (con notifiche di progresso) |
 | `open_page`, `click`, `api_get`, `download`, `download_by_click` | strumenti avanzati di esplorazione (`STUDIUM_TOOLS=core` li nasconde) |
 

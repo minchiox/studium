@@ -97,6 +97,8 @@ describe('MCP server on the mock platform', () => {
       'get_career',
       'list_notices',
       'get_agenda',
+      'get_exams',
+      'practice_quiz',
     ]) {
       expect(tools[name]?.annotations?.readOnlyHint, name).toBe(true);
     }
@@ -136,6 +138,21 @@ describe('MCP server on the mock platform', () => {
     const agenda = JSON.parse((await call('get_agenda')).text);
     expect(agenda.map((a: { kind: string }) => a.kind)).toEqual(['live', 'booking', 'exam']);
     expect(agenda[1].title).toBe('Analisi dei dati');
+  });
+
+  it('lists exams and bookable sessions, and builds a practice quiz, without booking anything', async () => {
+    const { call } = await connect();
+    const exams = JSON.parse((await call('get_exams', { location: 'all' })).text);
+    expect(exams.bookings[0]).toMatchObject({ courseCode: 'DAT101', course: 'Analisi dei dati' });
+    expect(exams.sessions.map((c: { code: string }) => c.code)).toEqual(['LAW102', 'DAT101']);
+    expect(exams.sessions[1].sessions[0].booked).toBe(true);
+    expect(exams.resultsToConfirm).toBe(1);
+    expect(exams.bookingUrl).toMatch(/\/appelli$/);
+    const seat = JSON.parse((await call('get_exams', {})).text);
+    expect(seat.seat).toBe('Sede centrale');
+    const quiz = JSON.parse((await call('practice_quiz', { course: 'DAT101', lesson: 3, count: 4 })).text);
+    expect(quiz.length).toBeGreaterThan(0);
+    for (const q of quiz) expect(q.options).toContain(q.answer);
   });
 
   it('syncs a course into the workspace and refuses paths outside it', async () => {

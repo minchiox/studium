@@ -369,6 +369,25 @@ export class LmsClient implements StudyClient {
 
   /** GET on the student API, validated against `schema`. Renews the session once on 401. */
   async apiGet<T extends z.ZodType>(path: string, schema: T, { envelope = true } = {}): Promise<z.infer<T>> {
+    const json = await this.fetchJson(path);
+    const target = envelope ? z.looseObject({ data: schema }) : schema;
+    const parsed = target.safeParse(json);
+    if (!parsed.success) throw new PlatformChangedError(path, z.prettifyError(parsed.error).slice(0, 400));
+    return (envelope ? (parsed.data as { data: unknown }).data : parsed.data) as z.infer<T>;
+  }
+
+  /** In-flight GETs by path: screens asking for the same data at the same time share one request. */
+  private readonly inflight = new Map<string, Promise<unknown>>();
+
+  private fetchJson(path: string): Promise<unknown> {
+    const pending = this.inflight.get(path);
+    if (pending) return pending;
+    const p = this.fetchJsonOnce(path).finally(() => this.inflight.delete(path));
+    this.inflight.set(path, p);
+    return p;
+  }
+
+  private async fetchJsonOnce(path: string): Promise<unknown> {
     const url = this.profile.apiBase + path;
     for (let attempt = 0; ; attempt++) {
       const token = await this.tokens.token();
@@ -381,16 +400,11 @@ export class LmsClient implements StudyClient {
       }
       if (res.status === 404) throw new NotFoundError(path);
       if (res.status >= 400) throw new HttpError(res.status, path, await res.text().catch(() => ''));
-      let json: unknown;
       try {
-        json = JSON.parse(await res.text());
+        return JSON.parse(await res.text()) as unknown;
       } catch {
         throw new PlatformChangedError(path, 'response is not JSON');
       }
-      const target = envelope ? z.looseObject({ data: schema }) : schema;
-      const parsed = target.safeParse(json);
-      if (!parsed.success) throw new PlatformChangedError(path, z.prettifyError(parsed.error).slice(0, 400));
-      return (envelope ? (parsed.data as { data: unknown }).data : parsed.data) as z.infer<T>;
     }
   }
 

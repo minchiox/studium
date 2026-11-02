@@ -24,4 +24,7 @@ export class McpClient extends LmsClient implements SyncClient {
 
 /** What the MCP tools need from the platform (implemented by McpClient, faked in tests). */
 export type ToolClient = SyncClient &
-  Pick<LmsClient, 'isSignedIn' | 'getCareer' | 'getNotices' | 'getAgenda' | 'watchUrl'>;
+  Pick<
+    LmsClient,
+    'isSignedIn' | 'getCareer' | 'getNotices' | 'getAgenda' | 'getExamsOverview' | 'officialPage' | 'watchUrl'
+  >;

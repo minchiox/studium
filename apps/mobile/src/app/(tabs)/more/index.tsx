@@ -22,6 +22,20 @@ export default function More() {
       </View>
       <Group>
         <Row
+          testID="more-exams"
+          title="Esami e appelli"
+          subtitle="Prenotazioni, appelli prenotabili ed esiti"
+          icon="calendar-check-outline"
+          onPress={() => router.push('/exams')}
+        />
+        <Row
+          testID="more-practice"
+          title="Esercitazioni"
+          subtitle="Quiz, ripasso e la tua banca di domande"
+          icon="head-question-outline"
+          onPress={() => router.push('/practice')}
+        />
+        <Row
           testID="more-agenda"
           title="Agenda"
           subtitle="Esami prenotati, appelli e lezioni live"

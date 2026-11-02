@@ -1,11 +1,11 @@
-import { careerStats } from '@studium/core';
+import { careerStats, closingSoon } from '@studium/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, Group, Marked, Pill, Progress, Row, Screen, Section, Txt } from '@/components/ui';
-import { useAgenda, useCareer, useCourses, useStudent, useUnreadNotices } from '@/lib/api';
-import { formatAverage, formatDay, formatTime, plural, relativeDay } from '@/lib/format';
+import { useAgenda, useCareer, useCourses, useExams, useStudent, useUnreadNotices } from '@/lib/api';
+import { formatAverage, formatDate, formatDay, formatTime, plural, relativeDay } from '@/lib/format';
 import { KIND_LABEL } from '@/lib/labels';
 import { syncReminders } from '@/lib/reminders';
 import { space, usePalette } from '@/lib/theme';
@@ -18,11 +18,14 @@ export default function Home() {
   const courses = useCourses();
   const agenda = useAgenda();
   const unread = useUnreadNotices();
+  const exams = useExams();
   const [refreshing, setRefreshing] = useState(false);
+  const closing = exams.data ? closingSoon(exams.data.courses) : [];
 
   useEffect(() => {
-    if (agenda.data) void syncReminders(agenda.data);
-  }, [agenda.data]);
+    if (agenda.data)
+      void syncReminders(agenda.data, exams.data ? closingSoon(exams.data.courses) : undefined);
+  }, [agenda.data, exams.data]);
 
   const refresh = async () => {
     setRefreshing(true);
@@ -110,6 +113,35 @@ export default function Home() {
           </Txt>
         )}
       </Section>
+
+      {closing.length || exams.data?.toConfirm ? (
+        <Group>
+          {exams.data?.toConfirm ? (
+            <Row
+              testID="home-results"
+              title={plural(exams.data.toConfirm, 'esito da confermare', 'esiti da confermare')}
+              subtitle="Accetta o rifiuta il voto"
+              icon="clipboard-check-outline"
+              iconColor="danger"
+              onPress={() => router.push('/exams')}
+            />
+          ) : null}
+          {closing.length ? (
+            <Row
+              testID="home-closing"
+              title="Prenotazioni in chiusura"
+              subtitle={closing
+                .slice(0, 2)
+                .map((o) => `${o.courseTitle}: entro il ${formatDate(o.closesOn).replace(/ \d{4}$/, '')}`)
+                .concat(closing.length > 2 ? [`e altri ${closing.length - 2}`] : [])
+                .join('\n')}
+              icon="calendar-alert"
+              iconColor="danger"
+              onPress={() => router.push('/exams')}
+            />
+          ) : null}
+        </Group>
+      ) : null}
 
       <Section title="Riprendi a studiare">
         {studying.length ? (

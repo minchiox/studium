@@ -1,10 +1,11 @@
 import { formatDuration } from '@studium/core';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, ErrorState, Group, Loading, Pill, Row, Screen, Section, Txt } from '@/components/ui';
 import { api, useLesson } from '@/lib/api';
 import { getHandout, handoutFile, openFile } from '@/lib/files';
+import { loadAi } from '@/lib/quiz';
 import { space, usePalette } from '@/lib/theme';
 
 export default function LessonScreen() {
@@ -13,7 +14,12 @@ export default function LessonScreen() {
   const q = useLesson(code, Number(n));
   const [busy, setBusy] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [ai, setAi] = useState(false);
   const l = q.data;
+
+  useEffect(() => {
+    void loadAi().then((s) => setAi(!!s?.hasKey));
+  }, []);
 
   if (!l) return q.error ? <ErrorState error={q.error} onRetry={() => void q.refetch()} /> : <Loading />;
 
@@ -84,6 +90,31 @@ export default function LessonScreen() {
               }
             }}
           />
+          <Button
+            testID="lesson-quiz"
+            kind="secondary"
+            label="Esercitati con un quiz"
+            icon="head-question-outline"
+            disabled={!l.paragraphs.some((p) => p.vttUrl)}
+            onPress={() =>
+              router.push({ pathname: '/quiz', params: { mode: 'lesson', code, n: String(l.number) } })
+            }
+          />
+          {ai ? (
+            <Button
+              testID="lesson-quiz-ai"
+              kind="secondary"
+              label="Quiz con l’IA"
+              icon="creation-outline"
+              disabled={!l.paragraphs.some((p) => p.vttUrl)}
+              onPress={() =>
+                router.push({
+                  pathname: '/quiz',
+                  params: { mode: 'lesson', code, n: String(l.number), engine: 'ai' },
+                })
+              }
+            />
+          ) : null}
           {fileError ? (
             <Txt variant="small" color="danger" testID="lesson-file-error">
               {fileError}

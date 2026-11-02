@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { AgendaItem } from '@studium/core';
+import type { AgendaItem, ExamOffer } from '@studium/core';
 import * as Notifications from 'expo-notifications';
-import { formatTime } from './format';
+import { formatDate, formatTime } from './format';
 
 const KEY = 'studium.reminders';
 const CHANNEL = 'exams';
@@ -37,11 +37,50 @@ export async function setRemindersEnabled(on: boolean): Promise<boolean> {
   return granted;
 }
 
-/** Re-schedules local reminders: the evening before (18:00) and 2 hours before each exam or booking. */
-export async function syncReminders(agenda: AgendaItem[], now = Date.now()): Promise<number> {
+let lastDeadlines: ExamOffer[] = [];
+
+/**
+ * Re-schedules local reminders: the evening before (18:00) and 2 hours before each exam or booking, and for
+ * booking deadlines (one per course, see `closingSoon`) the evening before and the morning of the last day.
+ * Callers without deadlines keep the last known ones.
+ */
+export async function syncReminders(
+  agenda: AgendaItem[],
+  deadlines?: ExamOffer[],
+  now = Date.now(),
+): Promise<number> {
+  if (deadlines) lastDeadlines = deadlines;
   if (!(await remindersEnabled())) return 0;
   await Notifications.cancelAllScheduledNotificationsAsync();
   let n = 0;
+  for (const o of lastDeadlines) {
+    if (!o.closesOn) continue;
+    const [y, m, d] = o.closesOn.split('-').map(Number);
+    const lastDay = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1, 9, 0, 0, 0);
+    const exam = formatDate(o.date).replace(/ \d{4}$/, '');
+    const slots = [
+      {
+        at: lastDay.getTime() - 15 * 3600_000,
+        body: `Domani è l’ultimo giorno per prenotare ${o.courseTitle} (appello del ${exam}).`,
+      },
+      {
+        at: lastDay.getTime(),
+        body: `Oggi è l’ultimo giorno per prenotare ${o.courseTitle} (appello del ${exam}).`,
+      },
+    ];
+    for (const s of slots) {
+      if (s.at <= now) continue;
+      await Notifications.scheduleNotificationAsync({
+        content: { title: 'Prenotazioni in chiusura', body: s.body },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(s.at),
+          channelId: CHANNEL,
+        },
+      });
+      n++;
+    }
+  }
   for (const item of agenda) {
     if (item.kind === 'live') continue;
     const eve = new Date(item.startsAt);

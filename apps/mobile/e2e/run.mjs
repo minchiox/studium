@@ -201,6 +201,11 @@ async function run(name, fn) {
     shot(name);
     results.push({ name, ok: true, ms: Date.now() - t0 });
     console.log(`  ✓ ${name} (${Date.now() - t0} ms)`);
+    // E2E_STOP_AFTER="sign in" leaves the app signed in, for manual checks on the device.
+    if (process.env.E2E_STOP_AFTER && name.startsWith(process.env.E2E_STOP_AFTER)) {
+      console.log(`stopped after "${name}" (E2E_STOP_AFTER)`);
+      process.exit(0);
+    }
   } catch (err) {
     shot(`FAIL-${name}`);
     results.push({ name, ok: false, error: err.message });

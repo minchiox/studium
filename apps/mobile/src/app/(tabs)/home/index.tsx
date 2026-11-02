@@ -60,7 +60,7 @@ export default function Home() {
                 unread ? plural(unread, 'avviso da leggere', 'avvisi da leggere') : 'Avvisi'
               }
               onPress={() => router.push('/notices')}
-              hitSlop={12}
+              hitSlop={8}
               style={styles.bell}
             >
               <MaterialCommunityIcons name="bell-outline" size={24} color={c.text} />
@@ -236,11 +236,19 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     padding: space.lg,
   },
-  bell: { padding: space.xs, marginRight: space.md },
+  // Fixed box with the badge inside it: the header clips anything drawn outside its bounds.
+  bell: {
+    width: 56,
+    height: 44,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    paddingLeft: 6,
+    marginRight: space.xs,
+  },
   badge: {
     position: 'absolute',
-    top: -4,
-    right: -10,
+    top: 3,
+    right: 2,
     minWidth: 18,
     height: 18,
     borderRadius: 9,

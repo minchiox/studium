@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1 — 2026-11-02
+
+- Tasto e gesto indietro nelle pagine ufficiali (prenotazione, player): tornano prima alla pagina precedente del sito, poi chiudono la pagina; la freccia in alto la chiude subito.
+- Campanella degli avvisi non più tagliata nell'intestazione.
+- E2E: opzione `E2E_STOP_AFTER` per fermarsi dopo un passo (per esempio dopo il login) e fare prove a mano.
+
 ## 1.2.0 — 2026-11-02
 
 - **Esami e appelli** (nuova scheda): prenotazioni, appelli prenotabili nella sede abituale con la scadenza della prenotazione, esiti da confermare. Prenotazione, cancellazione e conferma degli esiti sulla pagina ufficiale, aperta nell'app ([ADR 0004](docs/adr/0004-prenotazioni-sulla-pagina-ufficiale.md)). Promemoria quando le prenotazioni stanno per chiudere.

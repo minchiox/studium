@@ -5,6 +5,7 @@ import { ActivityIndicator, AppState, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Txt } from '@/components/ui';
 import { space, usePalette } from '@/lib/theme';
+import { useWebBack } from '@/lib/webBack';
 
 const PAUSE_ALL = `document.querySelectorAll('video,audio').forEach(function (m) { try { m.pause(); } catch (e) {} }); true;`;
 
@@ -18,6 +19,7 @@ export default function Watch() {
   const { url } = useLocalSearchParams<{ url: string; title?: string }>();
   // The typings default P to `undefined`, which collapses the props to `never`: pin it to `object`.
   const web = useRef<WebView<object>>(null);
+  const onNavigationStateChange = useWebBack(web);
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (s) => {
@@ -39,6 +41,7 @@ export default function Watch() {
       </View>
       <WebView
         ref={web}
+        onNavigationStateChange={onNavigationStateChange}
         testID="watch-webview"
         source={{ uri: url }}
         javaScriptEnabled

@@ -2,13 +2,14 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { isHostAllowed } from '@studium/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { Empty, Txt } from '@/components/ui';
 import { keys } from '@/lib/api';
 import { useProfile } from '@/lib/profile';
 import { space, usePalette } from '@/lib/theme';
+import { useWebBack } from '@/lib/webBack';
 
 /**
  * A page of the university's official web app (exam booking, results), opened with the student's session.
@@ -21,6 +22,8 @@ export default function Official() {
   const profile = useProfile();
   const { url, title } = useLocalSearchParams<{ url: string; title?: string }>();
   const allowed = !!url && isHostAllowed(profile, url);
+  const web = useRef<WebView<object>>(null);
+  const onNavigationStateChange = useWebBack(web);
 
   // Bookings may have changed on the official page: refresh what depends on them when leaving.
   useEffect(
@@ -42,6 +45,8 @@ export default function Official() {
       </View>
       {allowed ? (
         <WebView
+          ref={web}
+          onNavigationStateChange={onNavigationStateChange}
           testID="official-webview"
           source={{ uri: url }}
           javaScriptEnabled

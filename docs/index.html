@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="it" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studium — client open-source per studenti</title>
+  <meta name="description" content="Studium è il client Android open-source e non ufficiale per gli studenti delle università online: lezioni, trascrizioni, carriera ed esami. Nessun server, nessuna telemetria.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#eef2ff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)">
+  <meta property="og:title" content="Studium">
+  <meta property="og:description" content="Il client open-source per gli studenti delle università online. Privacy first, zero server.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind Play CDN, version pinned. For a fully static build, compile with the Tailwind CLI instead. -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          colors: { deep: { 900: '#0b1437', 950: '#060b24' } },
+        },
+      },
+    };
+  </script>
+  <style>
+    /* Phone mockup: the screenshot is four 378×750 screens side by side; each phone shows one of them. */
+    .phone { aspect-ratio: 378 / 750; }
+    .phone img { width: 400%; max-width: none; height: 100%; object-fit: cover; }
+    .phone[data-screen="2"] img { transform: translateX(-25%); }
+    @media (prefers-reduced-motion: no-preference) {
+      .lift { transition: transform .2s ease, box-shadow .2s ease; }
+      .lift:hover { transform: translateY(-2px); }
+    }
+  </style>
+</head>
+<body id="top" class="bg-white text-slate-700 antialiased font-sans dark:bg-slate-950 dark:text-slate-300">
+  <a href="#contenuto" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-indigo-600 focus:px-4 focus:py-2 focus:text-white">Vai al contenuto</a>
+
+  <!-- Unofficial notice, always visible -->
+  <div class="bg-slate-900 text-slate-200 text-xs sm:text-sm dark:bg-slate-900">
+    <p class="mx-auto max-w-6xl px-4 py-2 text-center">
+      Progetto <strong class="text-white">indipendente e non ufficiale</strong>: non affiliato ad alcuna università né a Multiversity.
+    </p>
+  </div>
+
+  <header class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3" aria-label="Principale">
+      <a href="#top" class="flex items-center gap-2 rounded-lg font-bold text-slate-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-white">
+        <svg class="h-7 w-7 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+        Studium
+      </a>
+      <ul class="hidden items-center gap-6 text-sm font-medium sm:flex">
+        <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="#funzioni">Funzioni</a></li>
+        <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="#sicurezza">Sicurezza</a></li>
+        <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="https://github.com/minchiox/studium">GitHub</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="contenuto">
+    <!-- Hero -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-indigo-50 to-white dark:from-deep-950 dark:to-slate-950" aria-labelledby="titolo">
+      <div class="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-indigo-400/20 blur-3xl dark:bg-indigo-600/20" aria-hidden="true"></div>
+      <div class="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:py-24 lg:grid-cols-2">
+        <div>
+          <p class="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/70 px-3 py-1 text-xs font-semibold text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300">
+            Open source · Licenza MIT · Android
+          </p>
+          <h1 id="titolo" class="text-5xl font-extrabold tracking-tight text-slate-900 sm:text-6xl dark:text-white">Studium</h1>
+          <p class="mt-4 text-xl font-medium text-slate-700 sm:text-2xl dark:text-slate-200">Il client open-source definitivo per gli studenti Multiversity</p>
+          <p class="mt-4 max-w-xl text-base leading-relaxed text-slate-600 dark:text-slate-400">
+            Lezioni, trascrizioni, dispense offline, carriera, esami e avvisi in un'app nativa e veloce.
+            Nessun server di mezzo: il telefono parla direttamente con la tua università.
+          </p>
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="https://github.com/minchiox/studium/releases/latest" class="lift inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-indigo-600/25 hover:bg-indigo-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 dark:focus-visible:ring-indigo-800">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Scarica l'APK stabile (GitHub Releases)
+            </a>
+            <a href="https://github.com/minchiox/studium" class="lift inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 font-semibold text-slate-800 hover:border-slate-400 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-500 dark:focus-visible:ring-indigo-800">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+              Codice sorgente
+            </a>
+          </div>
+          <p class="mt-4 text-sm text-slate-500 dark:text-slate-400">APK per <code class="font-mono text-xs">arm64-v8a</code> per quasi tutti i telefoni, <code class="font-mono text-xs">armeabi-v7a</code> per i 32 bit.</p>
+        </div>
+
+        <!-- App mockup -->
+        <div class="relative mx-auto flex w-full max-w-md justify-center gap-4" role="img" aria-label="Due schermate dell'app Studium: la home con le cose da fare e il dettaglio di un corso">
+          <div class="phone w-1/2 overflow-hidden rounded-[2.2rem] border-[10px] border-slate-900 bg-slate-900 shadow-2xl shadow-indigo-900/30 dark:border-slate-800" data-screen="1">
+            <img src="screenshots/overview.png" alt="" loading="eager">
+          </div>
+          <div class="phone mt-12 w-1/2 overflow-hidden rounded-[2.2rem] border-[10px] border-slate-900 bg-slate-900 shadow-2xl shadow-indigo-900/30 dark:border-slate-800" data-screen="2">
+            <img src="screenshots/overview.png" alt="" loading="eager">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature grid -->
+    <section id="funzioni" class="mx-auto max-w-6xl px-4 py-20" aria-labelledby="funzioni-titolo">
+      <h2 id="funzioni-titolo" class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Fatto per studiare, non per raccogliere dati</h2>
+      <p class="mt-3 max-w-2xl text-slate-600 dark:text-slate-400">Studium legge i tuoi dati dalla piattaforma dell'ateneo e li organizza per lo studio. Non scrive nulla al posto tuo.</p>
+      <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <li class="lift rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+          </span>
+          <h3 class="mt-4 font-semibold text-slate-900 dark:text-white">Privacy First · Zero Server</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">Nessun server Studium, nessun account, nessuna telemetria. I tuoi dati restano sul telefono.</p>
+        </li>
+        <li class="lift rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>
+          </span>
+          <h3 class="mt-4 font-semibold text-slate-900 dark:text-white">Multi-Ateneo</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">Pegaso, Mercatorum, San Raffaele: pensato per le università della stessa piattaforma studenti. Verificato end-to-end su un ateneo.</p>
+        </li>
+        <li class="lift rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
+          </span>
+          <h3 class="mt-4 font-semibold text-slate-900 dark:text-white">UI nativa e fluida</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">Interfaccia Material in React Native, tema chiaro e scuro dal sistema, dispense e trascrizioni anche offline.</p>
+        </li>
+        <li class="lift rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6"/><path d="m8 6-6 6 6 6"/></svg>
+          </span>
+          <h3 class="mt-4 font-semibold text-slate-900 dark:text-white">Open Source Transparency</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">Codice MIT su GitHub, test automatici in CI, decisioni documentate. Puoi verificare tutto quello che fa.</p>
+        </li>
+      </ul>
+
+      <dl class="mt-12 grid gap-x-8 gap-y-4 rounded-2xl bg-slate-50 p-6 text-sm sm:grid-cols-2 lg:grid-cols-3 dark:bg-slate-900/60">
+        <div><dt class="font-semibold text-slate-900 dark:text-white">Home "Da fare"</dt><dd class="text-slate-600 dark:text-slate-400">Esiti da confermare, prenotazioni in chiusura, lezioni da riprendere.</dd></div>
+        <div><dt class="font-semibold text-slate-900 dark:text-white">Esami e appelli</dt><dd class="text-slate-600 dark:text-slate-400">Scadenze e promemoria; si prenota sulla pagina ufficiale.</dd></div>
+        <div><dt class="font-semibold text-slate-900 dark:text-white">Trascrizioni</dt><dd class="text-slate-600 dark:text-slate-400">Dai sottotitoli delle lezioni, con ricerca ed evidenziatore.</dd></div>
+        <div><dt class="font-semibold text-slate-900 dark:text-white">Carriera</dt><dd class="text-slate-600 dark:text-slate-400">Libretto, medie e base di laurea stimata.</dd></div>
+        <div><dt class="font-semibold text-slate-900 dark:text-white">Quiz locali</dt><dd class="text-slate-600 dark:text-slate-400">Domande dalle trascrizioni, offline, con ripasso a intervalli.</dd></div>
+        <div><dt class="font-semibold text-slate-900 dark:text-white">Agenda e avvisi</dt><dd class="text-slate-600 dark:text-slate-400">Esami, lezioni live e comunicazioni dell'ateneo.</dd></div>
+      </dl>
+    </section>
+
+    <!-- Security & transparency -->
+    <section id="sicurezza" class="bg-deep-950 text-slate-300" aria-labelledby="sicurezza-titolo">
+      <div class="mx-auto max-w-6xl px-4 py-20">
+        <h2 id="sicurezza-titolo" class="text-3xl font-bold tracking-tight text-white">Sicurezza e trasparenza</h2>
+        <p class="mt-3 max-w-2xl text-slate-400">Perché puoi fidarti: le garanzie sono scritte nel codice, non solo promesse.</p>
+        <ol class="mt-10 grid gap-6 md:grid-cols-2">
+          <li class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <h3 class="font-semibold text-white">La password resta tua</h3>
+            <p class="mt-2 text-sm leading-relaxed">Accedi sulla pagina <strong class="text-white">ufficiale</strong> dell'ateneo, aperta dentro l'app. Studium non vede, non salva e non invia la password.</p>
+          </li>
+          <li class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <h3 class="font-semibold text-white">Token cifrato sul telefono</h3>
+            <p class="mt-2 text-sm leading-relaxed">L'app conserva solo il token di accesso di breve durata, cifrato con il <strong class="text-white">Keystore di Android</strong>. Il token di rinnovo non viene mai letto.</p>
+          </li>
+          <li class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <h3 class="font-semibold text-white">Diretto con l'università</h3>
+            <p class="mt-2 text-sm leading-relaxed">Le richieste vanno dal telefono ai server dell'ateneo. Nessun server Studium in mezzo, nessuna telemetria.</p>
+          </li>
+          <li class="rounded-2xl border border-white/10 bg-white/5 p-6">
+            <h3 class="font-semibold text-white">Solo lettura, garantito</h3>
+            <p class="mt-2 text-sm leading-relaxed">Una guardia blocca ogni scrittura verso l'API studenti e ogni chiamata di tracciamento della frequenza. La frequenza la registra solo il player ufficiale, mentre guardi.</p>
+          </li>
+          <li class="rounded-2xl border border-white/10 bg-white/5 p-6 md:col-span-2">
+            <h3 class="font-semibold text-white">Pagine web confinate all'ateneo</h3>
+            <p class="mt-2 text-sm leading-relaxed">Login, player e pagine ufficiali possono aprire solo gli indirizzi dell'università: i link esterni e i deep link verso altri siti vengono bloccati. Le configurazioni importate vengono verificate e i loro domini mostrati prima della conferma.</p>
+          </li>
+        </ol>
+        <p class="mt-8 text-sm">
+          <a class="font-semibold text-indigo-300 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded" href="https://github.com/minchiox/studium/blob/main/PRIVACY_POLICY.md">Leggi la Privacy Policy</a>
+          <span aria-hidden="true" class="mx-2 text-slate-600">·</span>
+          <a class="font-semibold text-indigo-300 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 rounded" href="https://github.com/minchiox/studium/blob/main/SECURITY.md">Segnala una vulnerabilità</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 dark:border-slate-800">
+    <div class="mx-auto max-w-6xl px-4 py-10">
+      <nav aria-label="Link del progetto">
+        <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium">
+          <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="https://github.com/minchiox/studium">Repository GitHub</a></li>
+          <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="https://github.com/minchiox/studium/blob/main/LICENSE">Licenza MIT</a></li>
+          <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="https://github.com/minchiox/studium/blob/main/PRIVACY_POLICY.md">Privacy Policy</a></li>
+          <li><a class="rounded hover:text-indigo-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:hover:text-indigo-400" href="https://github.com/minchiox/studium/blob/main/SECURITY.md">Sicurezza</a></li>
+        </ul>
+      </nav>
+      <p class="mt-6 max-w-3xl text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+        <strong>Avviso legale.</strong> Studium è un progetto indipendente e non ufficiale. Non è affiliato, approvato né sostenuto da Multiversity, dall'Università Telematica Pegaso, dall'Universitas Mercatorum, dall'Università Telematica San Raffaele Roma o da altri atenei.
+        I nomi e i marchi citati appartengono ai rispettivi titolari e sono usati solo per descrivere la compatibilità.
+        Usa il tuo account personale nel rispetto del regolamento del tuo ateneo; dispense e lezioni restano dei rispettivi autori.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

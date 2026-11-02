@@ -152,8 +152,7 @@ async function practiceTour(suffix) {
 /** Exams section: bookings, seat filter, official booking page (opened, never acted upon). */
 async function examsTour(suffix, officialText) {
   await run(`exams and booking${suffix}`, async () => {
-    await tab('Altro');
-    await tap({ id: 'more-exams' });
+    await tab('Esami');
     await waitFor({ text: 'Prenotati', exact: true }, { timeout: 30_000 });
     await waitFor({ text: 'Appelli prenotabili', exact: true });
     shot(`exams${suffix}`);
@@ -170,7 +169,6 @@ async function examsTour(suffix, officialText) {
     shot(`official booking page${suffix}`);
     await back();
     await waitFor({ id: 'exams' });
-    await back();
   });
 }
 /** Bottom navigation: the exact label in the lowest part of the screen (titles and body text may repeat it). */
@@ -357,7 +355,8 @@ async function main() {
   });
 
   await run('notices and attachment', async () => {
-    await tab('Avvisi');
+    await tab('Altro');
+    await tap({ id: 'more-notices' });
     await tap({ id: 'notice-3' });
     await waitFor({ text: 'Le prenotazioni per gli appelli' });
     await tap({ id: 'attachment-31' });
@@ -365,6 +364,8 @@ async function main() {
     // The system PDF viewer (or the share sheet) opens on top: come back to the app.
     await back();
     await waitFor({ id: 'notice' }, { timeout: 10_000 }).catch(async () => back());
+    await back();
+    await waitFor({ id: 'notices' });
     await back();
   });
 
@@ -462,9 +463,11 @@ async function realTour() {
     noErrors('career');
   });
   await run('notices (real)', async () => {
-    await tab('Avvisi');
+    await tab('Altro');
+    await tap({ id: 'more-notices' });
     await waitFor({ id: firstId('notice-') ? firstId('notice-').id : 'notices' }, { timeout: 30_000 });
     noErrors('notices');
+    await back();
   });
   await run('agenda (real)', async () => {
     await tab('Altro');

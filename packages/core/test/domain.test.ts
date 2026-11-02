@@ -152,7 +152,7 @@ describe('notices and agenda', () => {
       now,
     );
     expect(agenda.map((a) => `${a.kind}:${a.title}`)).toEqual(['exam:B', 'live:Live', 'booking:Corso A']);
-    expect(agenda[2]?.subtitle).toBe('Scritto · Roma');
+    expect(agenda[2]?.subtitle).toBe('Scritto, Roma');
   });
 });
 

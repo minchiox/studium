@@ -1,12 +1,14 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 import { Group, Row, Screen, Txt } from '@/components/ui';
-import { useStudent } from '@/lib/api';
+import { useStudent, useUnreadNotices } from '@/lib/api';
+import { plural } from '@/lib/format';
 import { useProfile } from '@/lib/profile';
 import { space } from '@/lib/theme';
 
 export default function More() {
   const s = useStudent().data;
+  const unread = useUnreadNotices().data ?? 0;
   const profile = useProfile();
   return (
     <Screen testID="more">
@@ -22,11 +24,13 @@ export default function More() {
       </View>
       <Group>
         <Row
-          testID="more-exams"
-          title="Esami e appelli"
-          subtitle="Prenotazioni, appelli prenotabili ed esiti"
-          icon="calendar-check-outline"
-          onPress={() => router.push('/exams')}
+          testID="more-notices"
+          title="Avvisi"
+          subtitle={
+            unread ? plural(unread, 'avviso da leggere', 'avvisi da leggere') : 'Comunicazioni dell’ateneo'
+          }
+          icon="bell-outline"
+          onPress={() => router.push('/notices')}
         />
         <Row
           testID="more-practice"

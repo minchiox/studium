@@ -139,7 +139,7 @@ function BookingRow({ b, title }: { b: ExamBooking; title: string }) {
         b.location ? `sede di ${b.location}` : null,
       ]
         .filter(Boolean)
-        .join(' · ')}
+        .join(', ')}
       icon="calendar-check"
       iconColor="success"
       right={<Pill label={relativeDay(at)} tone="success" />}
@@ -212,7 +212,7 @@ function OfferRow({ o, showPlace }: { o: ExamOffer; showPlace: boolean }) {
     <Row
       testID={`exams-offer-${o.courseCode}-${o.date}`}
       title={`${capitalize(formatDay(at))}${o.start ? `, ${formatTime(at)}` : ''}`}
-      subtitle={[o.type, showPlace ? o.location : null, deadline].filter(Boolean).join(' · ')}
+      subtitle={[o.type, showPlace ? o.location : null, deadline].filter(Boolean).join(', ')}
       right={<Pill label={status.label} tone={status.tone} />}
       onPress={() => openOfficial('exams')}
       chevron={false}

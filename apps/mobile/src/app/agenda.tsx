@@ -34,7 +34,7 @@ export default function Agenda() {
           title="Esami e appelli"
           subtitle="Prenota, controlla le scadenze e gli esiti"
           icon="calendar-check-outline"
-          onPress={() => router.push('/exams')}
+          onPress={() => router.navigate('/exams')}
         />
       </Group>
       <Group>

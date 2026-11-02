@@ -1,14 +1,17 @@
-import { careerStats, closingSoon } from '@studium/core';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { bankStats, careerStats, closingSoon } from '@studium/core';
 import { useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { router, Stack, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button, Group, Marked, Pill, Progress, Row, Screen, Section, Txt } from '@/components/ui';
 import { useAgenda, useCareer, useCourses, useExams, useStudent, useUnreadNotices } from '@/lib/api';
-import { formatAverage, formatDate, formatDay, formatTime, plural, relativeDay } from '@/lib/format';
+import { formatAverage, formatDay, formatTime, plural, relativeDay } from '@/lib/format';
 import { KIND_LABEL } from '@/lib/labels';
+import { loadBank } from '@/lib/quiz';
 import { syncReminders } from '@/lib/reminders';
-import { space, usePalette } from '@/lib/theme';
+import { space, type, usePalette } from '@/lib/theme';
+import { buildTodo, type TodoItem } from '@/lib/todo';
 
 export default function Home() {
   const c = usePalette();
@@ -17,15 +20,21 @@ export default function Home() {
   const career = useCareer();
   const courses = useCourses();
   const agenda = useAgenda();
-  const unread = useUnreadNotices();
+  const unread = useUnreadNotices().data ?? 0;
   const exams = useExams();
   const [refreshing, setRefreshing] = useState(false);
-  const closing = exams.data ? closingSoon(exams.data.courses) : [];
+  const [due, setDue] = useState(0);
 
   useEffect(() => {
     if (agenda.data)
       void syncReminders(agenda.data, exams.data ? closingSoon(exams.data.courses) : undefined);
   }, [agenda.data, exams.data]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadBank().then((b) => setDue(bankStats(Object.values(b.questions), b.states).due));
+    }, []),
+  );
 
   const refresh = async () => {
     setRefreshing(true);
@@ -33,158 +42,185 @@ export default function Home() {
     setRefreshing(false);
   };
 
+  const titles = Object.fromEntries((courses.data ?? []).map((x) => [x.code, x.title]));
+  const todo = buildTodo({ exams: exams.data, courses: courses.data, dueReviews: due, titles });
   const stats = career.data ? careerStats(career.data) : null;
-  const studying = (courses.data ?? [])
-    .filter((x) => x.progress !== null && x.progress < 100 && !x.exam?.passed)
-    .sort((a, b) => (b.lastWatched?.at ?? '').localeCompare(a.lastWatched?.at ?? ''))
-    .slice(0, 4);
   const next = (agenda.data ?? []).slice(0, 3);
   const firstError = [student, career, courses].find((q) => q.error && !q.data)?.error;
 
   return (
-    <Screen refreshing={refreshing} onRefresh={refresh} testID="home">
-      <View style={{ gap: 2 }}>
-        <Txt variant="title">{student.data?.firstName ? `Ciao, ${student.data.firstName}` : 'Ciao'}</Txt>
-        {student.data?.degree ? (
-          <Txt variant="small" color="textMuted">
-            {student.data.degree}
-          </Txt>
-        ) : null}
-      </View>
-
-      {firstError ? (
-        <View style={[styles.notice, { backgroundColor: c.dangerSoft }]}>
-          <Txt variant="small" style={{ color: c.danger, flex: 1 }}>
-            Non riesco ad aggiornare i dati. Tira giù per riprovare.
-          </Txt>
-        </View>
-      ) : null}
-
-      <View
-        style={[styles.figures, { backgroundColor: c.surface, borderColor: c.border }]}
-        testID="home-figures"
-      >
-        <View style={{ gap: space.xs }}>
-          <Txt variant="small" color="textMuted">
-            Media ponderata
-          </Txt>
-          {stats?.weightedAverage ? (
-            <Marked>{formatAverage(stats.weightedAverage)}</Marked>
-          ) : (
-            <Txt variant="heading">{stats ? 'Ancora nessun voto' : '—'}</Txt>
-          )}
-        </View>
-        <View style={{ gap: space.sm }}>
-          <View style={styles.spread}>
-            <Txt variant="bodyStrong">
-              {stats ? `${stats.acquiredCfu} di ${stats.requiredCfu} CFU` : 'CFU'}
-            </Txt>
+    <>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable
+              testID="home-notices"
+              accessibilityRole="button"
+              accessibilityLabel={
+                unread ? plural(unread, 'avviso da leggere', 'avvisi da leggere') : 'Avvisi'
+              }
+              onPress={() => router.push('/notices')}
+              hitSlop={12}
+              style={styles.bell}
+            >
+              <MaterialCommunityIcons name="bell-outline" size={24} color={c.text} />
+              {unread ? (
+                <View style={[styles.badge, { backgroundColor: c.danger }]}>
+                  <Text style={[type.caption, styles.badgeText]}>{unread > 99 ? '99+' : unread}</Text>
+                </View>
+              ) : null}
+            </Pressable>
+          ),
+        }}
+      />
+      <Screen refreshing={refreshing} onRefresh={refresh} testID="home">
+        <View style={{ gap: 2 }}>
+          <Txt variant="title">{student.data?.firstName ? `Ciao, ${student.data.firstName}` : 'Ciao'}</Txt>
+          {student.data?.degree ? (
             <Txt variant="small" color="textMuted">
-              {stats ? plural(stats.passedExams, 'esame superato', 'esami superati') : ''}
+              {student.data.degree}
+            </Txt>
+          ) : null}
+        </View>
+
+        {firstError ? (
+          <View style={[styles.notice, { backgroundColor: c.dangerSoft }]}>
+            <Txt variant="small" style={{ color: c.danger, flex: 1 }}>
+              Non riesco ad aggiornare i dati. Tira giù per riprovare.
             </Txt>
           </View>
-          <Progress value={stats?.cfuPercent ?? 0} tone="success" height={8} />
+        ) : null}
+
+        {todo.length ? <Todo items={todo} /> : null}
+
+        <View
+          style={[styles.figures, { backgroundColor: c.surface, borderColor: c.border }]}
+          testID="home-figures"
+        >
+          <View style={{ gap: space.xs }}>
+            <Txt variant="small" color="textMuted">
+              Media ponderata
+            </Txt>
+            {stats?.weightedAverage ? (
+              <Marked>{formatAverage(stats.weightedAverage)}</Marked>
+            ) : (
+              <Txt variant="heading">{stats ? 'Ancora nessun voto' : '—'}</Txt>
+            )}
+          </View>
+          <View style={{ gap: space.sm }}>
+            <View style={styles.spread}>
+              <Txt variant="bodyStrong">
+                {stats ? `${stats.acquiredCfu} di ${stats.requiredCfu} CFU` : 'CFU'}
+              </Txt>
+              <Txt variant="small" color="textMuted">
+                {stats ? plural(stats.passedExams, 'esame superato', 'esami superati') : ''}
+              </Txt>
+            </View>
+            <Progress value={stats?.cfuPercent ?? 0} tone="success" height={8} />
+          </View>
         </View>
-      </View>
 
-      <Section
-        title="Prossimi impegni"
-        action={
-          <Button kind="quiet" label="Agenda" onPress={() => router.push('/agenda')} testID="home-agenda" />
-        }
-      >
-        {next.length ? (
-          <Group>
-            {next.map((a) => (
-              <Row
-                key={a.id}
-                title={a.title}
-                subtitle={`${formatDay(a.startsAt)}, ${formatTime(a.startsAt)} (${relativeDay(a.startsAt)})`}
-                icon={a.kind === 'live' ? 'video-outline' : 'pencil-box-outline'}
-                right={<Pill label={KIND_LABEL[a.kind].label} tone={KIND_LABEL[a.kind].tone} />}
-                onPress={() => router.push('/agenda')}
-                chevron={false}
-              />
-            ))}
-          </Group>
-        ) : (
-          <Txt variant="small" color="textMuted">
-            {agenda.isPending ? 'Caricamento…' : 'Nessun esame o lezione live in programma.'}
-          </Txt>
-        )}
-      </Section>
+        <Section
+          title="Prossimi impegni"
+          action={
+            <Button kind="quiet" label="Agenda" onPress={() => router.push('/agenda')} testID="home-agenda" />
+          }
+        >
+          {next.length ? (
+            <Group>
+              {next.map((a) => (
+                <Row
+                  key={a.id}
+                  title={a.title}
+                  subtitle={`${formatDay(a.startsAt)}, ${formatTime(a.startsAt)} (${relativeDay(a.startsAt)})`}
+                  icon={a.kind === 'live' ? 'video-outline' : 'pencil-box-outline'}
+                  right={<Pill label={KIND_LABEL[a.kind].label} tone={KIND_LABEL[a.kind].tone} />}
+                  onPress={() => router.push('/agenda')}
+                  chevron={false}
+                />
+              ))}
+            </Group>
+          ) : (
+            <Txt variant="small" color="textMuted">
+              {agenda.isPending ? 'Caricamento…' : 'Nessun esame o lezione live in programma.'}
+            </Txt>
+          )}
+        </Section>
 
-      {closing.length || exams.data?.toConfirm ? (
         <Group>
-          {exams.data?.toConfirm ? (
-            <Row
-              testID="home-results"
-              title={plural(exams.data.toConfirm, 'esito da confermare', 'esiti da confermare')}
-              subtitle="Accetta o rifiuta il voto"
-              icon="clipboard-check-outline"
-              iconColor="danger"
-              onPress={() => router.push('/exams')}
-            />
+          <Row
+            testID="home-practice"
+            title="Esercitazioni"
+            subtitle={
+              due ? `${plural(due, 'domanda', 'domande')} da ripassare` : 'Quiz sulle lezioni e ripasso'
+            }
+            icon="head-question-outline"
+            onPress={() => router.push('/practice')}
+          />
+          <Row
+            title="Cerca nelle trascrizioni"
+            subtitle="Trova un concetto in tutte le lezioni scaricate"
+            icon="magnify"
+            onPress={() => router.push('/search')}
+          />
+        </Group>
+      </Screen>
+    </>
+  );
+}
+
+/** The next things to do. The first, when it is due today, carries the highlighter. */
+function Todo({ items }: { items: TodoItem[] }) {
+  const c = usePalette();
+  const [first, ...rest] = items;
+  if (!first) return null;
+  return (
+    <Section title="Da fare">
+      <Pressable
+        testID={`todo-${first.id}`}
+        accessibilityRole="button"
+        accessibilityLabel={[first.title, first.subtitle].filter(Boolean).join(', ')}
+        onPress={() => router.push(first.href)}
+        android_ripple={{ color: c.inkSoft }}
+        style={[
+          styles.focus,
+          { backgroundColor: c.surface, borderColor: first.urgent ? c.highlight : c.border },
+        ]}
+      >
+        <MaterialCommunityIcons name={first.icon} size={26} color={c.ink} />
+        <View style={{ flex: 1, gap: space.xs }}>
+          <Txt variant="heading">
+            {first.urgent ? (
+              // Inline background: highlights line by line, like a real highlighter on a wrapped title.
+              <Text style={{ backgroundColor: c.highlight, color: c.onHighlight }}>{` ${first.title} `}</Text>
+            ) : (
+              first.title
+            )}
+          </Txt>
+          {first.subtitle ? (
+            <Txt variant="small" color="textMuted">
+              {first.subtitle}
+            </Txt>
           ) : null}
-          {closing.length ? (
+        </View>
+        <MaterialCommunityIcons name="chevron-right" size={22} color={c.textMuted} />
+      </Pressable>
+      {rest.length ? (
+        <Group>
+          {rest.map((t) => (
             <Row
-              testID="home-closing"
-              title="Prenotazioni in chiusura"
-              subtitle={closing
-                .slice(0, 2)
-                .map((o) => `${o.courseTitle}: entro il ${formatDate(o.closesOn).replace(/ \d{4}$/, '')}`)
-                .concat(closing.length > 2 ? [`e altri ${closing.length - 2}`] : [])
-                .join('\n')}
-              icon="calendar-alert"
-              iconColor="danger"
-              onPress={() => router.push('/exams')}
+              key={t.id}
+              testID={`todo-${t.id}`}
+              title={t.title}
+              subtitle={t.subtitle}
+              icon={t.icon}
+              right={t.urgent ? <Pill label="Oggi" tone="highlight" /> : undefined}
+              onPress={() => router.push(t.href)}
             />
-          ) : null}
+          ))}
         </Group>
       ) : null}
-
-      <Section title="Riprendi a studiare">
-        {studying.length ? (
-          <Group>
-            {studying.map((x) => (
-              <Row
-                key={x.code}
-                testID={`home-course-${x.code}`}
-                title={x.title}
-                subtitle={`${x.progress}% delle videolezioni`}
-                icon="book-open-page-variant-outline"
-                onPress={() => router.push({ pathname: '/course/[code]', params: { code: x.code } })}
-              />
-            ))}
-          </Group>
-        ) : (
-          <Txt variant="small" color="textMuted">
-            {courses.isPending
-              ? 'Caricamento…'
-              : 'Nessun corso in corso. Trovi tutto il piano di studi in Corsi.'}
-          </Txt>
-        )}
-      </Section>
-
-      <Group>
-        <Row
-          title="Avvisi"
-          subtitle={
-            unread.data
-              ? plural(unread.data, 'avviso da leggere', 'avvisi da leggere')
-              : 'Comunicazioni dell’ateneo'
-          }
-          icon="bell-outline"
-          onPress={() => router.navigate('/notices')}
-        />
-        <Row
-          title="Cerca nelle trascrizioni"
-          subtitle="Trova un concetto in tutte le lezioni scaricate"
-          icon="magnify"
-          onPress={() => router.push('/search')}
-        />
-      </Group>
-    </Screen>
+    </Section>
   );
 }
 
@@ -192,4 +228,25 @@ const styles = StyleSheet.create({
   figures: { borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.xl },
   spread: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   notice: { borderRadius: 12, padding: space.md, flexDirection: 'row' },
+  focus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    borderRadius: 18,
+    borderWidth: 2,
+    padding: space.lg,
+  },
+  bell: { padding: space.xs, marginRight: space.md },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -10,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: { color: '#FFFFFF', fontSize: 11, lineHeight: 14, fontFamily: 'Figtree_700Bold' },
 });

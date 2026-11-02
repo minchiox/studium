@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
+  assertAiEnabled,
   type CardState,
+  ENABLE_AI_FEATURES,
   generateQuiz,
   generateQuizWithLlm,
   type Lesson,
@@ -118,6 +120,8 @@ export interface AiSettings {
 }
 
 export async function loadAi(): Promise<(AiSettings & { hasKey: boolean }) | null> {
+  // With AI features off no provider counts as configured: every "Quiz con l'IA" entry point stays hidden.
+  if (!ENABLE_AI_FEATURES) return null;
   const raw = await AsyncStorage.getItem(AI_SETTINGS).catch(() => null);
   if (!raw) return null;
   const s = JSON.parse(raw) as AiSettings;
@@ -146,6 +150,7 @@ async function aiConfig(): Promise<LlmConfig | null> {
 }
 
 export async function aiQuiz(sources: QuizSource[], count = 8): Promise<QuizQuestion[]> {
+  assertAiEnabled('Quiz con l’IA');
   const config = await aiConfig();
   if (!config) throw new Error('Configura prima il provider IA nelle impostazioni dei quiz.');
   return generateQuizWithLlm((url, init) => fetch(url, init), config, sources, count);

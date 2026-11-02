@@ -6,7 +6,7 @@ import { Button, Group, Pill, Progress, QueryView, Row, Screen, Section, Txt } f
 import { useCourses, useLessons } from '@/lib/api';
 import { type CourseDownloadProgress, downloadCourse } from '@/lib/files';
 import { humanDuration, plural } from '@/lib/format';
-import { space, usePalette } from '@/lib/theme';
+import { elevation, space, usePalette } from '@/lib/theme';
 
 export default function CourseScreen() {
   const c = usePalette();
@@ -28,7 +28,13 @@ export default function CourseScreen() {
             const next = p.pending[0];
             return (
               <>
-                <View style={[styles.head, { backgroundColor: c.surface, borderColor: c.border }]}>
+                <View
+                  style={[
+                    styles.head,
+                    { backgroundColor: c.surface, borderColor: c.border },
+                    elevation(c, 1),
+                  ]}
+                >
                   <Txt variant="title">{name}</Txt>
                   <Txt variant="small" color="textMuted">
                     {[
@@ -145,7 +151,7 @@ export default function CourseScreen() {
 }
 
 const styles = StyleSheet.create({
-  head: { borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.xs },
+  head: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.xs },
   spread: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   actions: { gap: space.sm, marginTop: space.lg },
 });

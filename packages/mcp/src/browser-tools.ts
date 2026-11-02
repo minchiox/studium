@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { assertHostAllowed } from '@studium/core';
-import type { Locator, Page } from 'playwright';
+import { assertHostAllowed, isHostAllowed } from '@studium/core';
+import type { Locator, Page, Route } from 'playwright';
 import { ensurePrivateDir, writeFileAtomic } from './fs-safe.ts';
 import { type BrowserSession, settle } from './session.ts';
 
@@ -70,14 +70,37 @@ export class PlaywrightBrowserTools implements BrowserTools {
 
   async downloadByClick(target: ClickTarget, destDir: string): Promise<{ file: string; sourceUrl: string }> {
     const page = await this.session.page();
-    const [download] = await Promise.all([
-      page.waitForEvent('download', { timeout: 30_000 }),
-      this.locate(page, target).click({ timeout: 10_000 }),
-    ]);
-    assertHostAllowed(this.session.config.profile, download.url(), this.extraHosts);
-    const file = path.join(destDir, path.basename(download.suggestedFilename()) || 'download');
-    await download.saveAs(file);
-    return { file, sourceUrl: download.url() };
+    const profile = this.session.config.profile;
+    const locator = this.locate(page, target);
+
+    // 1. Before clicking: a link pointing outside the university is refused outright.
+    const href = await locator
+      .evaluate((el) => (el instanceof HTMLAnchorElement ? el.href : null), undefined, { timeout: 10_000 })
+      .catch(() => null);
+    if (href && /^https?:/i.test(href)) assertHostAllowed(profile, href, this.extraHosts);
+
+    // 2. While clicking: scripts or redirects cannot start a download from a foreign host either, because every
+    //    request of the page to such a host is aborted before it leaves the browser.
+    const foreign = (url: string) => /^https?:/i.test(url) && !isHostAllowed(profile, url, this.extraHosts);
+    const blockForeign = (route: Route) =>
+      foreign(route.request().url()) ? route.abort('blockedbyclient') : route.fallback();
+    await page.route('**/*', blockForeign);
+    try {
+      const [download] = await Promise.all([
+        page.waitForEvent('download', { timeout: 30_000 }),
+        locator.click({ timeout: 10_000 }),
+      ]);
+      // 3. Defence in depth: nothing is written to disk if the final URL is foreign.
+      if (foreign(download.url())) {
+        await download.cancel().catch(() => {});
+        assertHostAllowed(profile, download.url(), this.extraHosts);
+      }
+      const file = path.join(destDir, path.basename(download.suggestedFilename()) || 'download');
+      await download.saveAs(file);
+      return { file, sourceUrl: download.url() };
+    } finally {
+      await page.unroute('**/*', blockForeign).catch(() => {});
+    }
   }
 
   async get(url: string): Promise<RawResponse> {

@@ -1,6 +1,7 @@
 // Optional AI quiz generation through any OpenAI-compatible chat API, with the student's own key (ADR 0003).
 // Requests go from the device straight to the provider the student chose; nothing passes through us.
 import { z } from 'zod';
+import { assertAiEnabled } from './features.ts';
 import type { QuizQuestion, QuizSource } from './quiz.ts';
 import { cleanSpeech } from './quiz.ts';
 
@@ -59,6 +60,8 @@ Rispondi SOLO con JSON: {"questions":[{"question":"…","options":["…","…","
 dove answer è l'indice (0-3) dell'opzione corretta e ref è il paragrafo di origine come appare tra parentesi quadre.`;
 
 export function buildLlmRequest(config: LlmConfig, sources: readonly QuizSource[], count: number) {
+  // Every provider request is built here: with AI features off, no lesson text can leave the device.
+  assertAiEnabled('AI quiz generation');
   const url = `${config.baseUrl.replace(/\/+$/, '')}/chat/completions`;
   if (!/^https:\/\//i.test(url)) throw new LlmError('L’indirizzo del provider deve iniziare con https://');
   return {

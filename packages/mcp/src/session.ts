@@ -225,7 +225,11 @@ export class BrowserSession {
 
     const apiHost = new URL(this.config.profile.apiBase).host;
     await ctx.route(
-      (url) => url.host === apiHost || TRACKING_PATH_RE.test(url.pathname),
+      // API host, or a tracking endpoint on any host (also percent-encoded: classifyRequest decodes the path).
+      (url) =>
+        url.host === apiHost ||
+        TRACKING_PATH_RE.test(url.pathname) ||
+        !classifyRequest(this.config.profile, 'GET', url.href).allow,
       async (route) => {
         const req = route.request();
         if (classifyRequest(this.config.profile, req.method(), req.url()).allow) return route.continue();

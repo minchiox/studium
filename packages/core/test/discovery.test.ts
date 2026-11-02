@@ -5,10 +5,10 @@ import {
   nameFromHost,
   normalizeSiteUrl,
   profileFromDiscovery,
-  registrableDomain,
   subtitleHostCandidates,
   withMediaHosts,
 } from '../src/discovery.ts';
+import { registrableDomain } from '../src/domains.ts';
 import { jwt } from './helpers.ts';
 
 const future = Math.floor(Date.now() / 1000) + 3600;

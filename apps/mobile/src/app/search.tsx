@@ -7,7 +7,7 @@ import { Button, Empty, Highlighted, Loading, Screen, Txt } from '@/components/u
 import { useCourses } from '@/lib/api';
 import { transcriptDocs } from '@/lib/files';
 import { plural } from '@/lib/format';
-import { space, type, usePalette } from '@/lib/theme';
+import { elevation, space, type, usePalette } from '@/lib/theme';
 
 export default function Search() {
   const c = usePalette();
@@ -43,7 +43,7 @@ export default function Search() {
 
   return (
     <View style={{ flex: 1, backgroundColor: c.bg }}>
-      <View style={[styles.box, { backgroundColor: c.surface, borderColor: c.border }]}>
+      <View style={[styles.box, { backgroundColor: c.surface, borderColor: c.border }, elevation(c, 1)]}>
         <MaterialCommunityIcons name="magnify" size={22} color={c.textMuted} />
         <TextInput
           testID="search-input"
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
     margin: space.lg,
     marginBottom: 0,
     paddingHorizontal: space.md,
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
   },
   hit: {
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
     padding: space.lg,
     gap: 4,

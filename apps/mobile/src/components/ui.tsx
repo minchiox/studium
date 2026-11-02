@@ -1,8 +1,10 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { errorCode, formatError, highlight } from '@studium/core';
-import { Children, type ComponentProps, Fragment, type ReactNode } from 'react';
+import { Children, type ComponentProps, Fragment, type ReactNode, useEffect, useRef } from 'react';
 import {
+  AccessibilityInfo,
   ActivityIndicator,
+  Animated,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -13,7 +15,8 @@ import {
   View,
   type ViewStyle,
 } from 'react-native';
-import { type Palette, radius, space, type, usePalette } from '@/lib/theme';
+import { haptics } from '@/lib/haptics';
+import { elevation, type Palette, radius, space, touch, type, usePalette } from '@/lib/theme';
 
 export type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -148,12 +151,75 @@ export function Section({
   );
 }
 
+/** A raised surface with a hairline border and a soft shadow: the base container of the app. */
+export function Card({
+  children,
+  style,
+  testID,
+  tone = 'surface',
+}: {
+  children: ReactNode;
+  style?: ViewStyle;
+  testID?: string;
+  tone?: 'surface' | 'ink';
+}) {
+  const c = usePalette();
+  return (
+    <View
+      testID={testID}
+      style={[
+        styles.card,
+        { backgroundColor: tone === 'ink' ? c.inkSoft : c.surface, borderColor: c.border },
+        elevation(c, tone === 'ink' ? 0 : 1),
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+
+/** An inline message with an icon: information, a warning to read before acting, or an error. */
+export function Callout({
+  tone = 'info',
+  title,
+  children,
+  testID,
+}: {
+  tone?: 'info' | 'warning' | 'danger' | 'success';
+  title: string;
+  children?: ReactNode;
+  testID?: string;
+}) {
+  const c = usePalette();
+  const looks: Record<typeof tone, { bg: string; fg: string; icon: IconName }> = {
+    info: { bg: c.inkSoft, fg: c.ink, icon: 'information-outline' },
+    warning: { bg: c.highlight, fg: c.onHighlight, icon: 'alert-outline' },
+    danger: { bg: c.dangerSoft, fg: c.danger, icon: 'shield-alert-outline' },
+    success: { bg: c.successSoft, fg: c.success, icon: 'check-circle-outline' },
+  };
+  const look = looks[tone];
+  return (
+    <View
+      testID={testID}
+      accessibilityRole={tone === 'danger' ? 'alert' : undefined}
+      style={[styles.callout, { backgroundColor: look.bg }]}
+    >
+      <MaterialCommunityIcons name={look.icon} size={20} color={look.fg} />
+      <View style={{ flex: 1, gap: space.xs }}>
+        <Text style={[type.smallStrong, { color: look.fg }]}>{title}</Text>
+        {children}
+      </View>
+    </View>
+  );
+}
+
 /** A surface holding rows separated by hairlines. */
 export function Group({ children }: { children: ReactNode }) {
   const c = usePalette();
   const items = Children.toArray(children).filter(Boolean);
   return (
-    <View style={[styles.group, { backgroundColor: c.surface, borderColor: c.border }]}>
+    <View style={[styles.group, { backgroundColor: c.surface, borderColor: c.border }, elevation(c, 1)]}>
       {items.map((child, i) => (
         <Fragment key={(child as { key?: string }).key ?? i}>
           {i > 0 ? <View style={[styles.sep, { backgroundColor: c.border }]} /> : null}
@@ -285,25 +351,38 @@ export function Button({
   label: string;
   onPress: () => void;
   icon?: IconName;
-  kind?: 'primary' | 'secondary' | 'quiet';
+  kind?: 'primary' | 'secondary' | 'quiet' | 'danger';
+  /** Work in progress: shows a spinner, ignores presses, announces "busy" to screen readers. */
   busy?: boolean;
   testID?: string;
   disabled?: boolean;
 }) {
   const c = usePalette();
-  const bg = kind === 'primary' ? c.ink : kind === 'secondary' ? c.inkSoft : 'transparent';
-  const fg = kind === 'primary' ? c.onInk : c.ink;
+  const inactive = !!disabled && !busy;
+  const solid = kind === 'primary' || kind === 'danger';
+  const bg = inactive
+    ? kind === 'quiet'
+      ? 'transparent'
+      : c.surfaceAlt
+    : { primary: c.ink, danger: c.danger, secondary: c.inkSoft, quiet: 'transparent' }[kind];
+  const fg = inactive ? c.textMuted : solid ? (kind === 'danger' ? c.surface : c.onInk) : c.ink;
   return (
     <Pressable
       testID={testID}
-      onPress={onPress}
+      onPress={() => {
+        if (solid) haptics.tap();
+        onPress();
+      }}
       disabled={busy || disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      android_ripple={{ color: kind === 'primary' ? '#ffffff33' : c.inkSoft }}
+      accessibilityState={{ disabled: !!(busy || disabled), busy: !!busy }}
+      android_ripple={{ color: solid ? '#ffffff33' : c.inkSoft }}
       style={({ pressed }) => [
         styles.button,
-        { backgroundColor: bg, opacity: disabled ? 0.5 : pressed ? 0.9 : 1 },
+        { backgroundColor: bg },
+        solid && !inactive && elevation(c, 1),
+        pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
         kind === 'quiet' && { paddingHorizontal: space.sm },
       ]}
     >
@@ -319,14 +398,86 @@ export function Button({
 
 // ------------------------------------------------------------------ states
 
+/** A pulsing placeholder with the shape of the content that is loading. Static when "reduce motion" is on. */
+export function Skeleton({
+  width = '100%',
+  height = 16,
+  round = false,
+}: {
+  width?: number | `${number}%`;
+  height?: number;
+  round?: boolean;
+}) {
+  const c = usePalette();
+  const pulse = useRef(new Animated.Value(0.55)).current;
+  useEffect(() => {
+    let loop: Animated.CompositeAnimation | null = null;
+    let cancelled = false;
+    void AccessibilityInfo.isReduceMotionEnabled().then((reduce) => {
+      if (reduce || cancelled) return;
+      loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),
+          Animated.timing(pulse, { toValue: 0.55, duration: 700, useNativeDriver: true }),
+        ]),
+      );
+      loop.start();
+    });
+    return () => {
+      cancelled = true;
+      loop?.stop();
+    };
+  }, [pulse]);
+  return (
+    <Animated.View
+      style={{
+        width,
+        height,
+        borderRadius: round ? height / 2 : radius.sm,
+        backgroundColor: c.track,
+        opacity: pulse,
+      }}
+    />
+  );
+}
+
+/** Loading state: skeleton rows in the shape of a list, with the label announced to screen readers. */
 export function Loading({ label = 'Caricamento…' }: { label?: string }) {
   const c = usePalette();
   return (
-    <View style={styles.center} accessibilityLiveRegion="polite">
-      <ActivityIndicator color={c.ink} size="large" />
-      <Txt variant="small" color="textMuted">
+    <View
+      style={{ gap: space.lg, paddingVertical: space.sm }}
+      accessible
+      accessibilityLabel={label}
+      accessibilityLiveRegion="polite"
+      accessibilityState={{ busy: true }}
+      testID="loading"
+    >
+      <Skeleton width="45%" height={24} />
+      <View style={[styles.group, { backgroundColor: c.surface, borderColor: c.border }]}>
+        {[0, 1, 2].map((i) => (
+          <View key={i} style={[styles.row, { gap: space.md }]}>
+            <Skeleton width={24} height={24} round />
+            <View style={{ flex: 1, gap: space.sm }}>
+              <Skeleton width={i === 1 ? '60%' : '80%'} />
+              <Skeleton width="40%" height={12} />
+            </View>
+          </View>
+        ))}
+      </View>
+      <Txt variant="small" color="textMuted" style={{ textAlign: 'center' }}>
         {label}
       </Txt>
+    </View>
+  );
+}
+
+/** Icon on a soft round badge, used by the full-screen states. */
+function StateIcon({ name, tone }: { name: IconName; tone: 'muted' | 'danger' }) {
+  const c = usePalette();
+  return (
+    <View style={[styles.stateIcon, { backgroundColor: tone === 'danger' ? c.dangerSoft : c.surfaceAlt }]}>
+      <MaterialCommunityIcons name={name} size={32} color={tone === 'danger' ? c.danger : c.textMuted} />
     </View>
   );
 }
@@ -341,9 +492,13 @@ const MESSAGES: Record<string, string> = {
 
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const code = errorCode(error);
+  // One haptic cue when the error state appears (not on every re-render).
+  useEffect(() => {
+    haptics.error();
+  }, []);
   return (
-    <View style={styles.center} testID="error-state">
-      <MaterialCommunityIcons name="cloud-alert-outline" size={36} color={usePalette().textMuted} />
+    <View style={styles.center} testID="error-state" accessibilityLiveRegion="assertive">
+      <StateIcon name={code === 'NETWORK' ? 'wifi-off' : 'cloud-alert-outline'} tone="danger" />
       <Txt variant="body" style={{ textAlign: 'center' }}>
         {MESSAGES[code] ?? formatError(error)}
       </Txt>
@@ -372,10 +527,9 @@ export function Empty({
   body?: string;
   action?: ReactNode;
 }) {
-  const c = usePalette();
   return (
     <View style={styles.center}>
-      <MaterialCommunityIcons name={icon} size={40} color={c.textMuted} />
+      <StateIcon name={icon} tone="muted" />
       <Txt variant="heading" style={{ textAlign: 'center' }}>
         {title}
       </Txt>
@@ -418,23 +572,36 @@ const styles = StyleSheet.create({
   },
   sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   group: { borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  card: { borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, padding: space.lg, gap: space.md },
+  callout: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: space.md,
+    padding: space.lg,
+    borderRadius: radius.md,
+  },
   sep: { height: StyleSheet.hairlineWidth, marginLeft: space.lg },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
     paddingHorizontal: space.lg,
-    paddingVertical: 14,
+    paddingVertical: space.md,
     minHeight: 56,
   },
   rowIcon: { width: 24, textAlign: 'center' },
-  pill: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, alignSelf: 'flex-start' },
+  pill: {
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xxs,
+    borderRadius: radius.pill,
+    alignSelf: 'flex-start',
+  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: space.sm,
-    minHeight: 48,
+    minHeight: touch.min,
     paddingHorizontal: space.xl,
     borderRadius: radius.pill,
   },
@@ -442,7 +609,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: space.md,
-    paddingVertical: 48,
+    paddingVertical: space.xxxl,
     paddingHorizontal: space.lg,
+  },
+  stateIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: space.xs,
   },
 });

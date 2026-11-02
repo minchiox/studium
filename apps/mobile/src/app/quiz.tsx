@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { dueQuestions, type QuizQuestion } from '@studium/core';
+import { dueQuestions, ENABLE_AI_FEATURES, type QuizQuestion } from '@studium/core';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -21,13 +21,15 @@ export default function Quiz() {
     mode = 'lesson',
     code = '',
     n,
-    engine = 'local',
+    engine: requested = 'local',
   } = useLocalSearchParams<{
     mode?: Mode;
     code?: string;
     n?: string;
     engine?: Engine;
   }>();
+  // A deep link asking for the AI engine falls back to the local one while AI features are off.
+  const engine: Engine = requested === 'ai' && ENABLE_AI_FEATURES ? 'ai' : 'local';
   const [seed, setSeed] = useState(1);
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null);
   const [error, setError] = useState<unknown>(null);

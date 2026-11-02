@@ -1,4 +1,4 @@
-import { bankStats, type QuizQuestion } from '@studium/core';
+import { bankStats, ENABLE_AI_FEATURES, type QuizQuestion } from '@studium/core';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -7,7 +7,7 @@ import { useCourses } from '@/lib/api';
 import { library } from '@/lib/files';
 import { plural } from '@/lib/format';
 import { type Bank, loadAi, loadBank } from '@/lib/quiz';
-import { space, usePalette } from '@/lib/theme';
+import { elevation, space, usePalette } from '@/lib/theme';
 
 /** The personal question bank: review queue, per-course progress, quizzes on downloaded courses. */
 export default function Practice() {
@@ -31,7 +31,7 @@ export default function Practice() {
 
   return (
     <Screen testID="practice">
-      <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
+      <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }, elevation(c, 1)]}>
         <Txt variant="small" color="textMuted">
           Ripasso di oggi
         </Txt>
@@ -95,15 +95,19 @@ export default function Practice() {
         )}
       </Section>
 
-      <Group>
-        <Row
-          testID="practice-ai"
-          title="Quiz con l’IA"
-          subtitle={ai ? `Attivo: ${ai}` : 'Facoltativo: usa la tua chiave di un provider compatibile OpenAI'}
-          icon="creation-outline"
-          onPress={() => router.push('/ai-settings')}
-        />
-      </Group>
+      {ENABLE_AI_FEATURES ? (
+        <Group>
+          <Row
+            testID="practice-ai"
+            title="Quiz con l’IA"
+            subtitle={
+              ai ? `Attivo: ${ai}` : 'Facoltativo: usa la tua chiave di un provider compatibile OpenAI'
+            }
+            icon="creation-outline"
+            onPress={() => router.push('/ai-settings')}
+          />
+        </Group>
+      ) : null}
       {stats?.seen ? (
         <Progress value={(stats.mastered / Math.max(1, stats.total)) * 100} tone="success" />
       ) : null}
@@ -112,5 +116,5 @@ export default function Practice() {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.sm },
+  card: { borderRadius: 16, borderWidth: StyleSheet.hairlineWidth, padding: space.xl, gap: space.sm },
 });

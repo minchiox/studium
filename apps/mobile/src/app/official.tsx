@@ -9,6 +9,7 @@ import { Empty, Txt } from '@/components/ui';
 import { keys } from '@/lib/api';
 import { useProfile } from '@/lib/profile';
 import { space, usePalette } from '@/lib/theme';
+import { navigationGuard } from '@/lib/webGuard';
 
 /**
  * A page of the university's official web app (exam booking, results), opened with the student's session.
@@ -44,6 +45,7 @@ export default function Official() {
         <WebView
           testID="official-webview"
           source={{ uri: url }}
+          onShouldStartLoadWithRequest={navigationGuard(profile)}
           javaScriptEnabled
           domStorageEnabled
           thirdPartyCookiesEnabled

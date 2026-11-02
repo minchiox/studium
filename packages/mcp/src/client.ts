@@ -1,4 +1,4 @@
-import { LmsClient, type Logger, silentLogger } from '@studium/core';
+import { assertHostAllowed, LmsClient, type Logger, silentLogger } from '@studium/core';
 import { type BrowserSession, playwrightTokens, playwrightTransport } from './session.ts';
 import type { FetchedFile, SyncClient } from './sync.ts';
 
@@ -15,6 +15,8 @@ export class McpClient extends LmsClient implements SyncClient {
   }
 
   async fetchFile(url: string): Promise<FetchedFile | null> {
+    // Handout URLs come from the API: never send the session to a host outside the university.
+    assertHostAllowed(this.session.config.profile, url, this.session.config.extraAllowedHosts);
     const res = await this.session.fetch(url, { headers: this.session.headersFor(url) });
     if (res.status() >= 400 && res.status() < 500) return null;
     if (!res.ok()) throw new Error(`HTTP ${res.status()} on ${url}`);

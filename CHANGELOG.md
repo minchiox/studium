@@ -1,5 +1,25 @@
 # Changelog
 
+## Non rilasciato
+
+**Sicurezza**
+- Configurazioni importate validate (`parseProfile`): ogni indirizzo (`spaUrl`, `apiBase`, `portalUrl`, `mediaHost`, `subtitleHost`, `logoutUrl`, player) deve stare nei domini autorizzati, in HTTPS e senza credenziali; i suffissi pubblici (`it`, `com`, `ac.uk`, `github.io`…) sono rifiutati. L'app mostra i domini e chiede conferma prima di salvare, oppure elenca gli indirizzi bloccati. Un profilo già salvato che non rispetta le regole viene scartato e l'app torna alla configurazione.
+- Player: l'indirizzo ricevuto (anche da deep link `studium://watch?url=…`) è verificato sugli host dell'ateneo.
+- Tutte le WebView (login, pagine ufficiali, player, rinnovo) bloccano la navigazione fuori dagli host dell'ateneo con `onShouldStartLoadWithRequest`; i link esterni si possono aprire nel browser di sistema.
+- Dominio registrabile calcolato con i suffissi pubblici a più livelli (`lms.uni.ac.uk` → `uni.ac.uk`).
+- Guardia sulle scritture ancorata a segmenti di percorso (`/oauth/…`, `/auth/…`, ultimo segmento `token`/`refresh`/`login`/`logout`); percorsi codificati (`%2F`) decodificati; prefisso dell'API confrontato per segmenti (`/api` ≠ `/api2`).
+- HTTP in chiaro consentito solo verso la macchina di sviluppo (`localhost`, `127.0.0.1`, `10.0.2.2`).
+- Dispense scaricate solo dagli host dell'ateneo (app e sync MCP); `downloadByClick` dell'MCP verifica l'host prima del click e blocca le richieste verso host esterni durante il download.
+
+**Funzioni IA temporaneamente disattivate** (`ENABLE_AI_FEATURES = false` in `packages/core/src/features.ts`): quiz con provider IA nascosti e bloccati nel core, `studium-mcp serve` non si avvia. I quiz locali restano.
+
+**Interfaccia**
+- Palette Slate/Indigo con notte deep blue, contrasto AA verificato in entrambi i temi; tipografia e spaziature sulla griglia di 4 px; ombre morbide su card e gruppi.
+- Nuovi componenti `Card`, `Callout`, `Skeleton`; caricamenti a scheletro; pulsanti con stati disabilitato/occupato accessibili e variante `danger`; feedback aptico (`expo-haptics`) su azioni principali ed errori.
+- Configurazione dell'università ridisegnata, con conferma esplicita dei domini all'importazione.
+
+**Documentazione**: README rinnovato, `PRIVACY_POLICY.md`, landing page statica per GitHub Pages in `docs/index.html`.
+
 ## 1.2.0 — 2026-11-02
 
 - **Esami e appelli** (nuova scheda): prenotazioni, appelli prenotabili nella sede abituale con la scadenza della prenotazione, esiti da confermare. Prenotazione, cancellazione e conferma degli esiti sulla pagina ufficiale, aperta nell'app ([ADR 0004](docs/adr/0004-prenotazioni-sulla-pagina-ufficiale.md)). Promemoria quando le prenotazioni stanno per chiudere.

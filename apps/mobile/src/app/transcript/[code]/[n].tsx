@@ -59,7 +59,7 @@ export default function TranscriptScreen() {
           onChangeText={setQuery}
           placeholder="Cerca in questa lezione"
           placeholderTextColor={c.textMuted}
-          style={[type.body, { flex: 1, color: c.text, paddingVertical: 10 }]}
+          style={[type.body, { flex: 1, color: c.text, paddingVertical: 8 }]}
           returnKeyType="search"
         />
         {query ? (

@@ -9,6 +9,7 @@ import { tokenWatcherScript, useAuth } from '@/lib/auth';
 import { saveProfile, useProfileState } from '@/lib/profile';
 import { buildProfile, discoveryScript, interpretProbes, type Probe, type SetupStep } from '@/lib/setup';
 import { space, usePalette } from '@/lib/theme';
+import { navigationGuard, siteScope } from '@/lib/webGuard';
 
 const STEP_LABEL: Record<SetupStep, string> = {
   verify: 'Verifico l’accesso…',
@@ -145,6 +146,8 @@ export default function Login() {
           setup ? discoveryScript() : tokenWatcherScript(profile?.tokenCookie ?? '', null, 0)
         }
         onMessage={onMessage}
+        // During setup no profile exists yet: the typed site and its sibling hosts are the scope.
+        onShouldStartLoadWithRequest={navigationGuard(setup || !profile ? siteScope(site) : profile)}
         onLoadEnd={() => setLoading(false)}
         onError={() => setFailed(true)}
         javaScriptEnabled

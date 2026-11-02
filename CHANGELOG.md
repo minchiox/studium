@@ -1,6 +1,6 @@
 # Changelog
 
-## Non rilasciato
+## 1.3.0 — 2026-11-02
 
 **Sicurezza**
 - Configurazioni importate validate (`parseProfile`): ogni indirizzo (`spaUrl`, `apiBase`, `portalUrl`, `mediaHost`, `subtitleHost`, `logoutUrl`, player) deve stare nei domini autorizzati, in HTTPS e senza credenziali; i suffissi pubblici (`it`, `com`, `ac.uk`, `github.io`…) sono rifiutati. L'app mostra i domini e chiede conferma prima di salvare, oppure elenca gli indirizzi bloccati. Un profilo già salvato che non rispetta le regole viene scartato e l'app torna alla configurazione.
